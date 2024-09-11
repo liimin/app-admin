@@ -8,7 +8,7 @@ export class DeviceController {
 
   @Get()
   @UseInterceptors(TransformInterceptor)
-  findAll(@Query() { user,mobile,sn,pageindex,pageSize }:Api.Device.QueryDevice):Promise<ResponseDto> {
+  findAll(@Query() { user,mobile,sn,pageindex,pageSize }:Api.Device.QueryDevice):Promise<Api.Device.DeviceInfo[]> {
     return this.deviceService.findAll({user,mobile,sn,pageindex,pageSize})
   }
 

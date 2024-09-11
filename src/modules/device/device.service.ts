@@ -9,11 +9,10 @@ export class DeviceService {
     // @InjectRepository(DeviceEntity)/
     // private readonly deviceRepository: Repository<DeviceEntity>,
     @Inject(PrismaService)
-    private readonly prisma: PrismaService
-  ) // private connection: Connection,
-  {}
+    private readonly prisma: PrismaService // private connection: Connection,
+  ) {}
 
-  async findAll({user,mobile,sn,pageSize,pageindex}:Api.Device.QueryDevice): Promise<Api.Device.DeviceInfo[]> {
+  async findAll({ user, mobile, sn, pageSize, pageindex }: Api.Device.QueryDevice): Promise<Api.Device.DeviceInfo[]> {
     const result = await this.prisma.device.findMany({
       // skip,
       // take,
@@ -29,41 +28,44 @@ export class DeviceService {
                 'user_fields': {
                   select: {
                     'log_user_field': {
-                      select:{
-                        name:true,
+                      select: {
+                        name: true
                       }
                     }
                   }
                 }
               }
             }
-          },
-          where:{
-            mobile,
-            user
           }
-        },
+        }
       },
-      where:{
-        sn
+      where: {
+        sn:{
+          contains: sn
+        },
+        AND: {
+          'device_info': {
+            mobile: {
+              contains: mobile
+            },
+            user: {
+              contains: user
+            }
+          }
+        }
       }
     })
     const data = result.reduce((pre, cur) => {
       pre.push({
-        sn:cur.sn,
-        user:cur.device_info?.user,
-        status:cur.device_info?.status,
-        'log_saved_days':cur.device_info?.log_config?.log_saved_days,
-        'log_user_fields':cur.device_info?.log_config?.user_fields?.map(item => item.log_user_field.name)
+        sn: cur.sn,
+        user: cur.device_info?.user,
+        status: cur.device_info?.status,
+        'log_saved_days': cur.device_info?.log_config?.log_saved_days,
+        'log_user_fields': cur.device_info?.log_config?.user_fields?.map(item => item.log_user_field.name)
       })
       return pre
-    },[])
+    }, [])
     return data
-    // 或者使用queryBuilder
-    // return await getRepository(UsersEntity)
-    //   .createQueryBuilder("user")
-    //   .leftJoinAndSelect("user.photos", "photo")
-    //   .getMany()
   }
 
   // async create(user): Promise<DeviceEntity[]> {
