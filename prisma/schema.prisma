@@ -9,40 +9,55 @@ datasource db {
 
 model device {
   id          Int          @id @default(autoincrement())
-  create_time DateTime     @db.DateTime(0)
-  sn          String       @unique @db.VarChar(20)
-  // device_info device_info?
-  // log_config  log_config?
+  sn          String       @db.VarChar(20)
+  create_time DateTime     @default(now()) @db.Timestamp(0)
+  device_info device_info?
+  log_config  log_config?
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model device_info {
   id                   Int         @id @default(autoincrement())
-  device_sn            String      @unique @db.VarChar(20)
+  device_id            Int         @unique(map: "device_id") @default(0)
   user                 String?     @db.VarChar(20)
   status               Int?        @db.TinyInt
-  last_log_upload_time DateTime?   @db.DateTime(0)
-  last_log_remove_time DateTime?   @db.Date
-  // device               device?     @relation(fields: [device_sn], references: [sn])
-  // log_config            log_config?
+  last_log_upload_time String?     @db.VarChar(30)
+  last_log_remove_time String?     @db.VarChar(30)
+  created_at           DateTime    @default(now()) @db.Timestamp(0)
+  updated_at           DateTime    @default(now()) @db.Timestamp(0)
+  mobile               String?     @db.VarChar(20)
+  merchant_name        String?     @db.VarChar(50)
+  device               device      @relation(fields: [device_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_device_info_device")
+  log_config           log_config?
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model log_config {
-  id             Int              @id @default(autoincrement())
-  device_sn      String           @unique @db.VarChar(50)
-  log_saved_days Int?             @default(7) @db.TinyInt
-  log_user_field log_user_field[]
-  // device         device           @relation(fields: [device_sn], references: [sn])
-  // device_info    device_info      @relation(fields: [device_sn], references: [device_sn], onDelete: NoAction, onUpdate: NoAction, map: "FK_303042b366f2ba3d54f4ddaf6ab")
+  id             Int                             @id @default(autoincrement())
+  device_id      Int                             @unique(map: "device_id") @default(0)
+  log_saved_days Int?                            @default(7) @db.TinyInt
+  created_at     DateTime                        @default(now()) @db.Timestamp(0)
+  updated_at     DateTime                        @default(now()) @db.Timestamp(0)
+  device         device                          @relation(fields: [device_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_log_config_device")
+  device_info    device_info                     @relation(fields: [device_id], references: [device_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_log_config_device_info")
+  user_fields    log_config_userfield_relation[]
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model log_user_field {
-  id         Int         @id @default(autoincrement())
-  name       String      @db.VarChar(20)
-  config_id  Int?
-  log_config log_config? @relation(fields: [config_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_303042b366f2ba3d54f4ddaf6ac")
+model log_config_userfield_relation {
+  id             Int            @id @default(autoincrement())
+  config_id      Int            @default(0)
+  user_field_id  Int            @default(0)
+  created_at     DateTime       @default(now()) @db.Timestamp(0)
+  updated_at     DateTime       @default(now()) @db.Timestamp(0)
+  log_config     log_config     @relation(fields: [config_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_log_config_userfield_relation_log_config")
+  log_user_field log_user_field @relation(fields: [user_field_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_log_config_userfield_relation_log_user_field")
 
-  @@index([config_id], map: "FK_log_user_field_log_config")
+  @@index([config_id], map: "FK_log_config_userfield_relation_log_config")
+  @@index([user_field_id], map: "FK_log_config_userfield_relation_log_user_field")
+}
+
+model log_user_field {
+  id         Int                             @id @default(autoincrement())
+  name       String                          @db.VarChar(20)
+  created_at DateTime                        @default(now()) @db.Timestamp(0)
+  updated_at DateTime                        @default(now()) @db.Timestamp(0)
+  config_ids log_config_userfield_relation[]
 }

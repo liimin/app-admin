@@ -21,10 +21,10 @@ import { AlbumModule } from './modules/album/album.module'
 @Module({
   imports: [
     ConfigModule.load(resolve(__dirname, 'config', '**/!(*.d).{ts,js}')),
-    TypeOrmModule.forRootAsync({
-      useFactory: (config: ConfigService) => config.get('database'),
-      inject: [ConfigService]
-    }),
+    // TypeOrmModule.forRootAsync({
+    //   useFactory: (config: ConfigService) => config.get('database'),
+    //   inject: [ConfigService]
+    // }),
     // TODO @nestjs/terminus almost the same
     StatusMonitorModule.setUp(statusMonitorConfig),
     MailerModule.forRootAsync({
