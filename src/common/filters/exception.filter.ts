@@ -11,9 +11,11 @@ export class ExceptionsFilter implements ExceptionFilter {
     // 获取响应体
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
+    console.log(exception)
     // 获取状态码，判断是HTTP异常还是服务器异常
     const statusCode = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
+    const msg = exception instanceof HttpException? exception.message : '服务器异常'
     // 自定义异常返回体
-    response.status(statusCode).json(BodyResponse(null, '服务器内部错误!', statusCode, request.url))
+    response.status(statusCode).json(BodyResponse(null, msg, statusCode,exception, request.url))
   }
 }

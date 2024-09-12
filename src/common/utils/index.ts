@@ -1,24 +1,25 @@
-import { RESPONSE_CODE, RESPONSE_MSG } from '../enums';
-import type { Response } from './types';
+import { types } from 'util'
+import { RESPONSE_CODE, RESPONSE_MSG } from '../enums'
 
-export const getCurrentTimestamp = (): number=> {
-    return Date.parse(new Date().toString()) / 1000;
+export const getCurrentTimestamp = (): number => {
+  return Date.parse(new Date().toString()) / 1000
 }
- /**
-  * @description: 统一返回体
-  */
- export const BodyResponse = <T = any>(
-   data,
-   msg?: string ,
-   code?: number,
-   url?: string 
- ): Response<T> => {
-   return {
-     code:code || RESPONSE_CODE.SUCCESS,
-     msg:msg || RESPONSE_MSG.SUCCESS,
-     data,
-     timestamp: getCurrentTimestamp(),
-     url,
-   };
- };
- export * from './types';
+
+/**
+ * @description: 统一返回体
+ */
+export const BodyResponse: CommonTypes.TBodyResponse = (result, msg, code,error, url) => {
+  if(msg instanceof Array){
+    msg = msg.join(';')
+  }
+  const { total, data } = result || {}
+  return {
+    url,
+    data,
+    total,
+    error,
+    'timestamp': getCurrentTimestamp(),
+    'msg': msg || RESPONSE_MSG.SUCCESS,
+    'code': code || RESPONSE_CODE.SUCCESS
+  }
+}

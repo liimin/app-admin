@@ -20,6 +20,6 @@ export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
     //   message,
     // });
     // 自定义异常返回体
-    response.status(status).json(BodyResponse(null, message, status, request.url))
+    response.status(status).json(BodyResponse(null, message, status,exception, request.url))
   }
 }

@@ -1,1 +1,16 @@
-http://localhost:3000/device?user=李四1
+//http://localhost:3000/device?pageIndex=1&pageSize=1&user=李四
+
+# POST http://localhost:3000/device/add HTTP/1.1
+# content-type: application/json
+
+# {
+#     "sn":"sn1111211212122"
+# }
+
+POST http://localhost:3000/device/addInfo HTTP/1.1
+content-type: application/json
+
+{
+    "device_id":1,
+    "mobile":"3800138000"
+}

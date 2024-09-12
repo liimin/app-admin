@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { HttpExceptionFilter } from './common/filters/http-exception.filter'
-import { ExceptionsFilter } from './common/filters/exception.filter'
+import { HttpExceptionFilter, ExceptionsFilter } from './common/filters'
 import { ValidationPipe } from './common/pipes/validation.pipe'
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor'
 import { AppModule } from './app.module'
@@ -13,8 +12,9 @@ async function bootstrap() {
   // app.use(logger)
 
   // 全局过滤器
-  app.useGlobalFilters(new HttpExceptionFilter())
   app.useGlobalFilters(new ExceptionsFilter())
+  app.useGlobalFilters(new HttpExceptionFilter())
+  // app.useGlobalFilters(new ValidateExceptionFilter())
   // 全局管道
   // app.useGlobalPipes(new ValidationPipe());
 
