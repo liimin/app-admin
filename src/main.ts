@@ -3,7 +3,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { HttpExceptionFilter, ExceptionsFilter } from './common/filters'
 import { ValidationPipe } from './common/pipes/validation.pipe'
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor'
+import { RedisIoAdapter } from './common/adapters'
 import { AppModule } from './app.module'
+
+import { WsAdapter } from '@nestjs/platform-ws'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -14,6 +17,11 @@ async function bootstrap() {
   // 全局过滤器
   app.useGlobalFilters(new ExceptionsFilter())
   app.useGlobalFilters(new HttpExceptionFilter())
+  app.enableCors()
+    const redisIoAdapter = new RedisIoAdapter(app);
+    await redisIoAdapter.connectToRedis();
+    app.useWebSocketAdapter(redisIoAdapter);
+    // app.useWebSocketAdapter(new WsAdapter(app))
   // app.useGlobalFilters(new ValidateExceptionFilter())
   // 全局管道
   // app.useGlobalPipes(new ValidationPipe());

@@ -9,7 +9,9 @@ import { PagesPipe, ValidationPipe } from '../../common/pipes'
 // @UsePipes(new ValidationPipe({transform: true}))
 @UsePipes(new ValidationPipe()) // 使用管道验证
 export class DeviceController {
-  constructor(private readonly deviceService: DeviceService) {}
+  constructor(
+    private readonly deviceService: DeviceService,
+  ) {}
 
   @Get()
   @UsePipes(new PagesPipe())
@@ -25,18 +27,5 @@ export class DeviceController {
   addDeviceInfo(@Body() param: AddDeviceInfoDto){
     // console.log(param)
     return this.deviceService.addDeviceInfo(param)
-  }
-  @Post()
-  async create(@Body() param) {
-    const newParam = { ...param, status: true }
-    // await this.deviceService.create(newParam)
-    return true
-  }
-
-  @Post('/many')
-  async createMany(@Body() users) {
-    const newUsers = users.map(user => ({ ...user, status: true }))
-    // await this.deviceService.createMany(newUsers)
-    return true
   }
 }

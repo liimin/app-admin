@@ -15,8 +15,11 @@ import { DeviceModule } from './modules/device/device.module'
 import { ExceptionModule } from './modules/exception/exception.module'
 import { RoleGuardModule } from './modules/role-guard/role-guard.module'
 import { EmailModule } from './modules/email/email.module'
-import { UsersModule } from './modules/users/users.module'
-import { AlbumModule } from './modules/album/album.module'
+// import { UsersModule } from './modules/users/users.module'
+import { FileModule } from './modules/file/file.module'
+import { WsModule } from './modules/ws/ws.module'
+// import { WsGateway } from './modules/ws/ws.gateway';
+import { SseModule } from './modules/sse/sse.module'
 
 @Module({
   imports: [
@@ -41,8 +44,10 @@ import { AlbumModule } from './modules/album/album.module'
     RoleGuardModule,
     EmailModule,
     // UsersModule,
-    AlbumModule
-  ]
+    FileModule,
+    SseModule,
+    WsModule
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

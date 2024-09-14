@@ -3,7 +3,7 @@ import { tar } from 'compressing';
 import { ConfigService } from 'nestjs-config';
 
 @Injectable()
-export class AlbumService {
+export class FileService {
   constructor(private readonly configService: ConfigService) {}
 
   upload(file) {

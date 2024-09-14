@@ -1,5 +1,4 @@
-import { PagesPipe } from './pages-arguments.pipe'
-import { ParseIntPipe } from "./parse-int.pipe";
-import { ValidationPipe } from "./validation.pipe";
-export { PagesPipe,ParseIntPipe,ValidationPipe}
+export * from './pages-arguments.pipe'
+export * from "./parse-int.pipe";
+export * from "./validation.pipe";
 

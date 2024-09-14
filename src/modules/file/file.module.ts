@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigService } from 'nestjs-config';
-import { AlbumController } from './album.controller';
-import { AlbumService } from './album.service';
+import { FileController } from './file.controller';
+import { FileService } from './file.service';
 
 @Module({
   imports: [
@@ -11,7 +11,7 @@ import { AlbumService } from './album.service';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AlbumController],
-  providers: [AlbumService],
+  controllers: [FileController],
+  providers: [FileService],
 })
-export class AlbumModule {}
+export class FileModule {}

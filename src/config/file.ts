@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join,extname } from 'path';
 import { diskStorage } from 'multer';
 
 export default {
@@ -6,8 +6,10 @@ export default {
   storage: diskStorage({
     destination: join(__dirname, `../uploads/${new Date().toLocaleDateString()}`),
     filename: (req, file, cb) => {
-      const filename = `${new Date().getTime()}.${file.mimetype.split('/')[1]}`;
-      return cb(null, filename);
+      // const name=file.originalname.split('.');
+      // const filename = `${name[0]}-${new Date().getTime()}.${name.pop()}`//${file.mimetype.split('/')[1]}`;
+      const path = `${file.originalname.split('.').shift()}-${Date.now()}-${Math.round(Math.random() * 1e10)}${extname(file.originalname)}`
+      return cb(null, path);
     },
   }),
 };
