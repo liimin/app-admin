@@ -3,7 +3,10 @@ import { from, Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Server, Socket } from 'socket.io'
 import { WsService } from './ws.service'
-import { Logger } from '@nestjs/common'
+import { Logger, Module, UseInterceptors } from '@nestjs/common'
+import { WsMessageType } from '../../common/enums'
+import { TransformInterceptor } from '../..//common/interceptors'
+
 /**
  * WebSocket 网关
  *
@@ -17,13 +20,14 @@ import { Logger } from '@nestjs/common'
   methods: ['GET', 'POST'], // 允许的 HTTP 请求类型
   cors: true // 允许跨域
 })
-export class WsGateway implements WsTypes.WebSocketGateway<Server,Observable<WsResponse<string>>, any>, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+@UseInterceptors(TransformInterceptor)
+export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<WsResponse<string>>, any>, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   /**
    * 用于初始化私有订阅消息处理类的构造函数。
    *
    * @param wsService - 注入的 WebSocket 服务实例，用于处理 WebSocket 相关操作。
    */
-  constructor(private readonly wsService: WsService) {}
+  constructor(public readonly wsService: WsService) {}
   /**
    * WebSocket 服务器实例
    */
@@ -34,8 +38,8 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server,Observable<WsR
    * @param data - 传入的数据
    * @returns 包含事件和数据的 Observable 对象
    */
-  @SubscribeMessage(WsTypes.MessageType.Private)
-  subPrivate(@MessageBody() data:any): Observable<WsResponse<string>> {
+  @SubscribeMessage(WsMessageType.Private)
+  subPrivate(@MessageBody() data: any): Observable<WsResponse<string>> {
     return from<string>('hello').pipe(map(item => ({ event: 'events', data: item })))
   }
 
@@ -44,7 +48,7 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server,Observable<WsR
    * @param data - 传入的数据
    * @returns 包含事件和数据的 Observable 对象
    */
-  @SubscribeMessage(WsTypes.MessageType.System)
+  @SubscribeMessage(WsMessageType.System)
   async subSystem(@MessageBody() data: number): Promise<number> {
     return data
   }
@@ -78,5 +82,13 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server,Observable<WsR
     this.wsService.server = server
     // 重置 socketIds
     this.wsService.resetClients()
+  }
+
+  public send(payload:WsTypes.MessageBody):Promise<any> {
+    if (payload.event === WsMessageType.Private) {
+      return this.wsService.sendPrivateMessage(payload)
+    } else {
+      return this.wsService.sendPublicMessage(payload)
+    }
   }
 }

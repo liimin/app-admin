@@ -1,7 +1,7 @@
   /**
    * 公共命名空间声明
    */
-  declare namespace CommonTypes{
+  declare module CommonTypes{
     /**
      * 定义一个基本的响应对象接口
      */

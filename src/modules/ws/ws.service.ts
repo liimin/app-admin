@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { Server, Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
 // import { WSResponse } from '../message/model/ws-response.model';
 // import { validateToken } from '@/utils/helper';
 // import { Message } from '@/entities/message.entity';
 // import { User } from '@/entities/user.entity';
-
+import { WsMessageType } from '../../common/enums'
 @Injectable()
 export class WsService {
   constructor() {}
@@ -28,7 +28,7 @@ export class WsService {
       return
     }
     // 认证用户
-    const res = { employeeId: 1 + '' } //JwtInterface = validateToken(token.replace('Bearer ', ''))
+    const res = client.handshake?.auth //{ employeeId: 1 + '' } //JwtInterface = validateToken(token.replace('Bearer ', ''))
     if (!res) {
       Logger.error('token 验证不通过')
       client.send('token 验证不通过')
@@ -45,12 +45,12 @@ export class WsService {
     const clients: Map<string, Socket> = this.server.sockets.sockets
     const clientIsOnline: Socket = clients.get(this.clientIds.get(employeeId))
     // 处理同一工号在多处登录
-    clientIsOnline?.send(`${employeeId} 已在别处上线, 此客户端下线处理`)
+    clientIsOnline?.emit(WsMessageType.System, `${employeeId} 已在别处上线, 此客户端下线处理`)
     clientIsOnline?.disconnect()
     // 保存工号
     this.clientIds.set(employeeId, client.id)
     Logger.log(`${employeeId} connected, onLine: ${clients.size}`)
-    this.server.send(`${employeeId} connected, onLine: ${clients.size}`)
+    this.server.emit(WsMessageType.System, `${employeeId} connected, onLine: ${clients.size}`)
     return
   }
 
@@ -79,10 +79,11 @@ export class WsService {
    * @param messagePath 发布地址
    * @param response 响应数据
    */
-  async sendPublicMessage(data: WsTypes.SystemData) {
-    const res = this.server?.emit(WsTypes.MessageType.System, data)
+  async sendPublicMessage(payload: WsTypes.MessageBody) {
+    console.log('websocket send', payload)
+    const res = this.server?.emit(WsMessageType.System, payload.data)
     if (!res) {
-      Logger.log('websocket send error', data)
+      Logger.log('websocket send error', payload)
     }
   }
 
@@ -92,19 +93,13 @@ export class WsService {
    * @param response 响应数据
    * @param employeeId 接收者工号
    */
-  async sendPrivateMessage(data: WsTypes.PrivateData) {
-    const client = this.server.sockets.sockets.get(this.clientIds.get(data.employeeId))
-    const res = client?.emit(WsTypes.MessageType.Private, data)
+  async sendPrivateMessage(payload: WsTypes.MessageBody) {
+    console.log('websocket send', payload)
+    if (!payload.employeeId)   throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: '请求参数employeeId 必传', error: 'employeeId is required' }, HttpStatus.BAD_REQUEST)
+    const client = this.server.sockets.sockets.get(this.clientIds.get(payload.employeeId))
+    const res = client?.emit(WsMessageType.Private, payload.data)
     if (!res) {
-      Logger.log('websocket send error', data)
-    }
-  }
-
-  send(payload: WsTypes.SendBody<WsTypes.MessageType>) {
-    if (payload.event === WsTypes.MessageType.Private) {
-      this.sendPrivateMessage(payload.data as WsTypes.PrivateData)
-    } else {
-      this.sendPublicMessage(payload.data)
+      Logger.log('websocket send error', payload)
     }
   }
 }

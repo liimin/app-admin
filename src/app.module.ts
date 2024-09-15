@@ -20,6 +20,7 @@ import { FileModule } from './modules/file/file.module'
 import { WsModule } from './modules/ws/ws.module'
 // import { WsGateway } from './modules/ws/ws.gateway';
 import { SseModule } from './modules/sse/sse.module'
+import { BroadcastModule } from './modules/broadcast/broadcast.module'
 
 @Module({
   imports: [
@@ -46,7 +47,8 @@ import { SseModule } from './modules/sse/sse.module'
     // UsersModule,
     FileModule,
     SseModule,
-    WsModule
+    WsModule,
+    BroadcastModule
   ],
 })
 export class AppModule {

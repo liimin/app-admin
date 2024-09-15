@@ -19,3 +19,13 @@
     FAILURE = '请求失败',
   }
  
+  export enum WsMessageType {
+    /**
+     * 私有订阅
+     */
+    Private = 'private',
+    /**
+     * 系统订阅
+     */
+    System = 'system'
+  }

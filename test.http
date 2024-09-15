@@ -1,11 +1,11 @@
-http://localhost:3000/device?pageIndex=1&pageSize=1&user=李四
+# http://localhost:3000/device?pageIndex=1&pageSize=1&user=李四
 
-# POST http://localhost:3000/device/add HTTP/1.1
-# content-type: application/json
+#  POST http://localhost:3000/device/add HTTP/1.1
+#  content-type: application/json
 
-# {
-#     "sn":"sn1111211212122"
-# }
+#  {
+#      "sn":"sn1111211212122"
+#  }
 
 # POST http://localhost:3000/device/addInfo HTTP/1.1
 # content-type: application/json
@@ -16,3 +16,16 @@ http://localhost:3000/device?pageIndex=1&pageSize=1&user=李四
 # }
 
 # http://localhost:3000/sse/event
+
+
+
+POST http://localhost:3000/broadcast/message HTTP/1.1
+ content-type: application/json
+
+ {
+      "event":"private",
+      "employeeId":"0.35481605237824265",
+        "data":{
+            "message":"hello limin"
+        }
+ }

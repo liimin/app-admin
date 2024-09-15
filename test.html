@@ -53,15 +53,15 @@
         // }
 
         const socket = io('http://192.168.1.129:8080',{
-            auth: { token:'12`13`23' },
+            auth: { token:'12`13`23',employeeId:Math.random()+'' },
         });
         socket.on('connect', function (a) {
             console.log('Connected');
             console.log(socket,a)
-            socket.emit('private', { test: 'test' });
-            socket.emit('system', 0, response =>
-                console.log('Identity:', response),
-            );
+            //socket.emit('private', { test: 'test' });
+            // socket.emit('system', 0, response =>
+            //     console.log('Identity:', response),
+            // );
         });
         socket.on('private', function (data) {
             console.log('event', data);

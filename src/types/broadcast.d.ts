@@ -1,3 +1,3 @@
-declare namespace Broadcastypes {
+declare module Broadcastypes {
     
 }
