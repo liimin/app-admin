@@ -64,11 +64,12 @@ declare module DeviceTypes {
     id?: number
     last_log_upload_time?: string
     last_log_remove_time?: string
-    device_id?: number
+    device_id: number
     created_at?: number
     updated_at?: number
   }
 
+  type UpdateDeviceInfo = CommonTypes.Optional<IDeviceInfoInput,"device_id">
   /**
    * 表示设备结果的接口
    */
@@ -125,7 +126,7 @@ declare module DeviceTypes {
     /**
      * 与设备关联的日志配置信息
      */
-    log_config: ILogConfig
+    log_config: Partial<ConfigTypes.ILogConfig>
   }
 
   /**

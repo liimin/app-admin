@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators'
 import { Server, Socket } from 'socket.io'
 import { WsService } from './ws.service'
 import { Logger, Module, UseInterceptors } from '@nestjs/common'
-import { WsMessageType } from '../../common/enums'
+import { WsMessageType, WsStatus, WsAccess } from '../../common/enums'
 import { TransformInterceptor } from '../..//common/interceptors'
 
 /**
@@ -57,11 +57,37 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
    * @param client client
    * @param args
    */
-  handleConnection(client: Socket, ...args: any[]) {
-    console.log('用户连接上', client.id)
+  handleConnection(client: Socket, ...args: any[]): WsTypes.IWsResponse<WsStatus, WsAccess> {
+    Logger.log('用户连接上', client.id)
+    const auth = client.handshake?.auth ?? client.handshake?.headers
+    const ValidateData: WsTypes.LoginValidate<WsAccess> = { isValidate: true, errMsg: WsAccess.IsOnline }
+    if (!auth) {
+      ValidateData.isValidate = false
+      ValidateData.errMsg = WsAccess.NotAllowed
+    }
+    const { token, deviceId } = auth
     // 注册用户
-    const token = client.handshake?.auth?.token ?? client.handshake?.headers?.authorization
-    return this.wsService.login(client, token)
+    if (!token) {
+      ValidateData.isValidate = false
+      ValidateData.errMsg = WsAccess.InValidToken
+    }
+    if (!deviceId) {
+      ValidateData.isValidate = false
+      ValidateData.errMsg = WsAccess.InvalidDeviceId
+    }
+    if (!ValidateData.isValidate) {
+      const msg = `${ValidateData.errMsg} token->${token} deviceId->${deviceId}}`
+      client.emit(WsMessageType.Private, msg)
+      Logger.error(msg)
+      const resData: WsTypes.IWsResponse<WsStatus, WsAccess> = {
+        status: WsStatus.Offline,
+        message: ValidateData.errMsg,
+        device_id: deviceId
+      }
+      client.disconnect()
+      return resData
+    }
+    return this.wsService.login(client, token, deviceId)
   }
 
   /**
@@ -84,7 +110,7 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
     this.wsService.resetClients()
   }
 
-  public send(payload:WsTypes.MessageBody):Promise<any> {
+  public send(payload: WsTypes.MessageBody): Promise<any> {
     if (payload.event === WsMessageType.Private) {
       return this.wsService.sendPrivateMessage(payload)
     } else {

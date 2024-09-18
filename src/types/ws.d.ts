@@ -9,12 +9,21 @@ declare module WsTypes {
   type MessageBody<T = WsMsgType> = {
     event: T
     data: any
-  } & (T extends 'private' ? PrivateData : Partial<PrivateData>)
+  } & (T extends 'private' ? IPrivateData : Partial<IPrivateData>)
 
-  interface PrivateData {
+  interface IPrivateData {
     /**
-     * 接收者工号
+     * 接收设备号
      */
-    employeeId: string
+    device_id: number
   }
+
+  interface IWsResponse<T, U> extends IPrivateData {
+    /**
+     * 状态码
+     */
+    status: T
+    message: U
+  }
+  type LoginValidate<T> = { isValidate: boolean; errMsg: T }
 }

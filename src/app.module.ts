@@ -20,8 +20,9 @@ import { FileModule } from './modules/file/file.module'
 import { WsModule } from './modules/ws/ws.module'
 // import { WsGateway } from './modules/ws/ws.gateway';
 import { SseModule } from './modules/sse/sse.module'
+import { LogConfigModule } from './modules/config/config.module';
 import { BroadcastModule } from './modules/broadcast/broadcast.module'
-
+import { EventEmitterModule } from '@nestjs/event-emitter';
 @Module({
   imports: [
     ConfigModule.load(resolve(__dirname, 'config', '**/!(*.d).{ts,js}')),
@@ -36,11 +37,11 @@ import { BroadcastModule } from './modules/broadcast/broadcast.module'
       inject: [ConfigService]
     }),
     ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot(),
     // TasksModule,
     // AudioModule,
     AuthModule,
     HelloModule,
-    DeviceModule,
     ExceptionModule,
     RoleGuardModule,
     EmailModule,
@@ -48,7 +49,9 @@ import { BroadcastModule } from './modules/broadcast/broadcast.module'
     FileModule,
     SseModule,
     WsModule,
-    BroadcastModule
+    DeviceModule,
+    BroadcastModule,
+    LogConfigModule
   ],
 })
 export class AppModule {

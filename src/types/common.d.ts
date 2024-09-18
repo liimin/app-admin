@@ -98,6 +98,8 @@
      * @returns 返回给前端的响应体
      */
     type TBodyResponse = (result: IResData, msg?: string | string[], code?: number,error?:any, url?: string) => IResponse<IResData<any>>
+    
+    type Optional<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
   }
 
 

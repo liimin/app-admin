@@ -1,4 +1,4 @@
-# http://localhost:3000/device?pageIndex=1&pageSize=1&user=李四
+# http://localhost:3000/device?pageIndex=2&pageSize=5
 
 #  POST http://localhost:3000/device/add HTTP/1.1
 #  content-type: application/json
@@ -11,21 +11,33 @@
 # content-type: application/json
 
 # {
-#     "device_id":1,
-#     "mobile":"3800138000"
+#     "device_id":13,
+#     "mobile":"13800138000",
+#     "user":"王老七",
+#     "merchant_name":"老点"
 # }
 
 # http://localhost:3000/sse/event
 
 
 
-POST http://localhost:3000/broadcast/message HTTP/1.1
- content-type: application/json
+# POST http://localhost:3000/broadcast/message HTTP/1.1
+#  content-type: application/json
 
- {
-      "event":"private",
-      "employeeId":"0.35481605237824265",
-        "data":{
-            "message":"hello limin"
-        }
- }
+#  {
+#       "event":"private",
+#       "device_id":1,
+#         "data":{
+#             "message":"hello limin"
+#         }
+#  }
+#  http://localhost:3000/config?device_id=2
+
+POST http://localhost:3000/config/add HTTP/1.1
+content-type: application/json
+
+{
+    "device_id":1,
+    "log_saved_days":8,
+    "user_fields":[1,2,3,4]
+}

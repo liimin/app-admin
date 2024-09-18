@@ -1,7 +1,7 @@
 import { IsString, IsNumber, IsNotEmpty, MaxLength, IsMobilePhone,IsOptional } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
-export class AddDeviceDto {
+export class WsDto {
   @ApiProperty({
     type: String,
     description: '设备SN',

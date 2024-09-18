@@ -3,15 +3,17 @@ import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common'
 // import { InjectRepository } from '@nestjs/typeorm';
 // import { Device as DeviceEntity } from '../entities/Device'
 import { PrismaService } from 'nestjs-prisma'
-import { AddDeviceInfoDto } from './dto/device.dto'
+import { AddDeviceInfoDto } from '../../dto/device.dto'
+import { WsConnEvents, WsStatus } from '../../common/enums'
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
+
 @Injectable()
 export class DeviceService {
   constructor(
-    // @InjectRepository(DeviceEntity)/
-    // private readonly deviceRepository: Repository<DeviceEntity>,
     @Inject(PrismaService)
     private readonly prisma: PrismaService // private connection: Connection,
-  ) {}
+  ) {
+  }
 
   async findAll({ user, mobile, sn, skip, take }: DeviceTypes.IQueryDevices): Promise<CommonTypes.IResData<DeviceTypes.IDeviceInfo[]>> {
     const where = {
@@ -83,44 +85,20 @@ export class DeviceService {
   }
 
   async addDeviceInfo(deviceInfo: AddDeviceInfoDto) {
+    deviceInfo.created_at = new Date()
+    deviceInfo.updated_at = new Date()
+    deviceInfo.status = WsStatus.Offline
     return await this.prisma.device_info.create({ data: deviceInfo })
   }
 
-  // async create(user): Promise<DeviceEntity[]> {
-  //   const { name } = user;
-  //   const u = await getRepository(DeviceEntity).findOne({ where: { name } });
-  //   //   .createQueryBuilder('users')
-  //   //   .where('users.name = :name', { name });
-  //   // const u = await qb.getOne();
-  //   if (u) {
-  //     throw new HttpException(
-  //       {
-  //         message: 'Input data validation failed',
-  //         error: 'name must be unique.',
-  //       },
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-  //   return await this.deviceRepository.save(user);
-  // }
-
-  // async createMany(users: DeviceEntity[]) {
-  // const queryRunner = this.connection.createQueryRunner();
-
-  // await queryRunner.connect();
-  // await queryRunner.startTransaction();
-  // try {
-  //   users.forEach(async user => {
-  //     await queryRunner.manager.getRepository(DeviceEntity).save(user);
-  //   });
-
-  //   await queryRunner.commitTransaction();
-  // } catch (err) {
-  //   // since we have errors lets rollback the changes we made
-  //   await queryRunner.rollbackTransaction();
-  // } finally {
-  //   // you need to release a queryRunner which was manually instantiated
-  //   await queryRunner.release();
-  // }
-  // }
+  async updateDeviceInfo(deviceInfo: AddDeviceInfoDto) {
+    const {device_id,...data} = deviceInfo
+    data.updated_at = new Date()
+    return await this.prisma.device_info.update({
+      where: {
+        device_id: deviceInfo.device_id
+      },
+      data,
+    })
+  }
 }
