@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common'
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { BodyResponse } from '../utils'
 @Catch(HttpException)
@@ -8,7 +8,8 @@ export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
     const status = exception.getStatus()
-    console.log(2,exception)
+    Logger.error(exception)
+    console.log(exception)
     const exceptionRes: any = exception.getResponse()
     const { message } = exceptionRes
 

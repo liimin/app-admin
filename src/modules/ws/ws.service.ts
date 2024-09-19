@@ -76,7 +76,7 @@ export class WsService {
    * @param messagePath 发布地址
    * @param response 响应数据
    */
-  async sendPublicMessage(payload: WsTypes.MessageBody) {
+  async sendPublicMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>) {
     console.log('websocket send', payload)
     const res = this.server?.emit(WsMessageType.System, payload.data)
     if (!res) {
@@ -91,14 +91,14 @@ export class WsService {
    * @param response 响应数据
    * @param deviceId 接收者设备号
    */
-  async sendPrivateMessage(payload: WsTypes.MessageBody) {
+  async sendPrivateMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>) {
     console.log('websocket send', payload)
     if (!payload.device_id) throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: '请求参数employeeId 必传', error: 'deviceId is required' }, HttpStatus.BAD_REQUEST)
     const client = this.server.sockets.sockets.get(this.clientIds.get(payload.device_id))
     const res = client?.emit(WsMessageType.Private, payload.data)
     if (!res) {
       Logger.log('websocket send error', payload)
-      throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: `发送失败,客户端:${payload.device_id}不在线`, error: 'send error' }, HttpStatus.BAD_REQUEST)
+      throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: `发送失败,客户端:(设备号->${payload.device_id}) 不在线`, error: 'send error' }, HttpStatus.BAD_REQUEST)
     }
   }
 }

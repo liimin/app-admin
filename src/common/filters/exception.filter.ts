@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common'
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common'
 import { Response, Request } from 'express'
 import { BodyResponse } from '../utils'
 
@@ -11,7 +11,9 @@ export class ExceptionsFilter implements ExceptionFilter {
     // 获取响应体
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
-    console.log(1,exception)
+    Logger.error(exception)
+    console.log(exception)
+
     // 获取状态码，判断是HTTP异常还是服务器异常
     const statusCode = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
     const msg = exception instanceof HttpException? exception.message : '服务器异常'

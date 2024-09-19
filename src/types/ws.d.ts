@@ -6,9 +6,9 @@ declare module WsTypes {
   }
   type WsMsgType = 'private' | 'system'
 
-  type MessageBody<T = WsMsgType> = {
+  type MessageBody<U,T = WsMsgType> = {
     event: T
-    data: any
+    data: U
   } & (T extends 'private' ? IPrivateData : Partial<IPrivateData>)
 
   interface IPrivateData {
@@ -26,4 +26,10 @@ declare module WsTypes {
     message: U
   }
   type LoginValidate<T> = { isValidate: boolean; errMsg: T }
+  type MessageData<T, U = CommonTypes.TObj> = {
+    order: T | string
+    payload: U
+  }
+
+  type WsMessageData<T> = MessageData<T>
 }

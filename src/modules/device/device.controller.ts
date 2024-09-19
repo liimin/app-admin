@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, UseInterceptors, Query, UsePipes } from '@nestjs/common'
 import { DeviceService } from './device.service'
 import { TransformInterceptor } from '../../common/interceptors'
-import { AddDeviceDto, AddDeviceInfoDto } from '../../dto/device.dto'
+import { AddDeviceDto, AddDeviceInfoDto } from '../../dto'
 import { PagesPipe, ValidationPipe } from '../../common/pipes'
 import { OnEvent } from '@nestjs/event-emitter'
 import { WsConnEvents } from '../../common/enums'

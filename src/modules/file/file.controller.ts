@@ -1,7 +1,7 @@
-import { Controller, Post, UploadedFile, UseInterceptors, Get, Res } from '@nestjs/common'
-import { Response } from 'express'
+import { Controller, Post, UploadedFile, UseInterceptors, Get, Res, Req } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { FileService } from './file.service'
+import { Response, Request } from 'express'
 import { FileMimeTypeFilter } from '../../common/filters'
 import { UploadFile } from '../../common/decorators'
 
@@ -10,9 +10,9 @@ export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  @UploadFile('file', { fileFilter: FileMimeTypeFilter('text/plain') })
-  upload(@UploadedFile() file: Express.Multer.File) {
+  @UploadFile('file', { fileFilter: FileMimeTypeFilter('text/plain'), limits: { fileSize: 1024 * 1024 * 100 } })
+  upload(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
+    console.log(req.body.deviceId)
     this.fileService.upload(file)
     return file
   }

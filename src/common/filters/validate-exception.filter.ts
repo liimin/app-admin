@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter,HttpStatus } from '@nestjs/common'
+import { ArgumentsHost, Catch, ExceptionFilter,HttpStatus, Logger } from '@nestjs/common'
 import { ValidationError } from 'class-validator';
 import { Request, Response } from 'express'
 import { BodyResponse } from '../utils'
@@ -8,7 +8,7 @@ export class ValidateExceptionFilter implements ExceptionFilter<ValidationError>
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const status = HttpStatus.BAD_REQUEST;
-    console.log(1,exception)
+    Logger.error(exception)
     // response
     //   .status(status)
     //   .json({

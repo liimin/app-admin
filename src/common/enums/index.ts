@@ -41,9 +41,9 @@ export enum WsAccess {
   InValidToken = '无效token',
   InvalidDeviceId = '无效设备id',
   IsOnline = '通过验证,设备上线',
-  IsOffline = '设备下线',
+  IsOffline = '设备下线'
 }
 
-export enum WsConnEvents  {
-  Connection='connection',
+export enum WsConnEvents {
+  Connection = 'connection'
 }

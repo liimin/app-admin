@@ -110,7 +110,7 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
     this.wsService.resetClients()
   }
 
-  public send(payload: WsTypes.MessageBody): Promise<any> {
+  public send(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>,WsMessageType>): Promise<any> {
     if (payload.event === WsMessageType.Private) {
       return this.wsService.sendPrivateMessage(payload)
     } else {
