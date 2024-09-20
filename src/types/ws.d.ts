@@ -6,7 +6,7 @@ declare module WsTypes {
   }
   type WsMsgType = 'private' | 'system'
 
-  type MessageBody<U,T = WsMsgType> = {
+  type MessageBody<U, T = WsMsgType> = {
     event: T
     data: U
   } & (T extends 'private' ? IPrivateData : Partial<IPrivateData>)
@@ -32,4 +32,6 @@ declare module WsTypes {
   }
 
   type WsMessageData<T> = MessageData<T>
+
+  type WsConnError = IPrivateData & { message: string }
 }

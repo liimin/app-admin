@@ -27,10 +27,6 @@ declare module DeviceTypes {
      */
     merchant_name?: string
     /**
-     * 状态
-     */
-    status?: number
-    /**
      * 日志保存天数
      */
     log_saved_days?: number
@@ -38,7 +34,7 @@ declare module DeviceTypes {
   /**
    * 设备信息接口
    */
-  interface IDeviceInfo extends IDeviceInfoBase, IDevice {
+  interface IDeviceInfo extends IDeviceInfoBase, IDevice, DeviceStatus.Status {
     /**
      * 日志用户字段
      */
@@ -65,11 +61,11 @@ declare module DeviceTypes {
     last_log_upload_time?: string
     last_log_remove_time?: string
     device_id: number
-    created_at?: number
-    updated_at?: number
+    created_at?: Date
+    updated_at?: Date
   }
 
-  type UpdateDeviceInfo = CommonTypes.Optional<IDeviceInfoInput,"device_id">
+  type UpdateDeviceInfo = CommonTypes.Optional<IDeviceInfoInput, 'device_id'>
   /**
    * 表示设备结果的接口
    */
@@ -127,8 +123,9 @@ declare module DeviceTypes {
      * 与设备关联的日志配置信息
      */
     log_config: Partial<ConfigTypes.ILogConfig>
-  }
 
+    device_status: DeviceStatus.Status
+  }
   /**
    * 表示日志配置的接口
    */
@@ -150,20 +147,6 @@ declare module DeviceTypes {
     /**
      * 日志用户字段的详细信息
      */
-    log_user_field?: ILogUserField
-  }
-
-  /**
-   * 表示日志用户字段的详细信息的接口
-   */
-  interface ILogUserField {
-    /**
-     * 日志用户字段的唯一标识符
-     */
-    id?: number
-    /**
-     * 日志用户字段的名称
-     */
-    name: string
+    log_user_field?: CommonTypes.Optional<Partial<UserFieldTypes.ILogUserFields>, 'name'>
   }
 }

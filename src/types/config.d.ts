@@ -19,10 +19,9 @@ declare module ConfigTypes {
     updated_at: Date | string
     user_fields: DeviceTypes.ILogUserFields[]
   }
-  type LogConfigQuery = Pick<Partial<ILogConfig>,'device_id'> & CommonTypes.IQueryBase
-  type LogConfigAdd = Omit<Partial<ILogConfig>,'id'|'user_fields'> & {user_fields: number[]}
+  type LogConfigQuery = Pick<Partial<ILogConfig>, 'device_id'> & CommonTypes.IQueryBase
+  type LogConfigAdd = Omit<Partial<ILogConfig>, 'id' | 'user_fields'> & { user_fields: number[] }
   type LogConfigResult = Partial<ILogConfig>
-  type LogConfigResponse = Omit<LogConfigResult,'user_fields'> & {user_fields: string[]}
-  type LogConfigUpdate = CommonTypes.Optional<ILogConfig,'device_id'>
-
+  type LogConfigResponse = Omit<LogConfigResult, 'user_fields'> & { user_fields: string[] }
+  type LogConfigUpdate = CommonTypes.Optional<ILogConfig, 'device_id'>
 }

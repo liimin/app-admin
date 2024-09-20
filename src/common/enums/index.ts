@@ -41,9 +41,20 @@ export enum WsAccess {
   InValidToken = '无效token',
   InvalidDeviceId = '无效设备id',
   IsOnline = '通过验证,设备上线',
-  IsOffline = '设备下线'
+  IsOffline = '设备下线',
+  ConnFailure = '设备连接失败,请检查设备号是否正确'
 }
 
 export enum WsConnEvents {
-  Connection = 'connection'
+  OnConnected = 'device.connected',
+  OnConnectError = 'device.connect.error'
+}
+export enum FileUploadEvents {
+  OnLogFileUploaded = 'log.file.uploaded'
+}
+export enum DocTypes {
+  Log = 'log',
+  Image = 'image',
+  Video = 'video',
+  Other = 'other'
 }

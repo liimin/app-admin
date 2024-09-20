@@ -8,31 +8,55 @@ datasource db {
 }
 
 model device {
-  id          Int          @id @default(autoincrement())
-  sn          String       @db.VarChar(20)
-  create_time DateTime     @default(now()) @db.Timestamp(0)
-  device_info device_info?
-  log_config  log_config?
+  id            Int            @id @default(autoincrement())
+  sn            String         @unique @db.VarChar(20)
+  create_time   DateTime       @default(now()) @db.Timestamp(0)
+  device_info   device_info?
+  device_status device_status?
+  logs          file[]
+  log_config    log_config?
 }
 
 model device_info {
-  id                   Int         @id @default(autoincrement())
-  device_id            Int         @unique(map: "device_id") @default(0)
-  user                 String?     @db.VarChar(20)
-  status               Int?        @db.TinyInt
-  last_log_upload_time String?     @db.VarChar(30)
-  last_log_remove_time String?     @db.VarChar(30)
-  created_at           DateTime    @default(now()) @db.Timestamp(0)
-  updated_at           DateTime    @default(now()) @db.Timestamp(0)
-  mobile               String?     @db.VarChar(20)
-  merchant_name        String?     @db.VarChar(50)
-  device               device      @relation(fields: [device_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_device_info_device")
+  id                   Int            @id @default(autoincrement())
+  device_id            Int            @unique @default(0)
+  user                 String?        @db.VarChar(20)
+  last_log_upload_time DateTime?      @db.Timestamp(0)
+  last_log_remove_time DateTime?      @db.Timestamp(0)
+  created_at           DateTime       @default(now()) @db.Timestamp(0)
+  updated_at           DateTime       @default(now()) @db.Timestamp(0)
+  mobile               String?        @db.VarChar(20)
+  merchant_name        String?        @db.VarChar(50)
+  device               device         @relation(fields: [device_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_device_info_device")
+  device_status        device_status?
+  logs                 file[]
   log_config           log_config?
+}
+
+model device_status {
+  device_id   Int         @id
+  status      Int         @default(0) @db.TinyInt
+  device      device      @relation(fields: [device_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__device")
+  device_info device_info @relation(fields: [device_id], references: [device_id], onDelete: NoAction, onUpdate: NoAction, map: "FK__device_info")
+}
+
+model file {
+  id           Int         @id @default(autoincrement())
+  device_id    Int         @default(0)
+  path         String      @db.VarChar(255)
+  mimetype     String?     @db.VarChar(100)
+  filename     String?     @db.VarChar(100)
+  originalname String?     @db.VarChar(255)
+  size         Int?        @default(0)
+  created_at   DateTime    @default(now()) @db.Timestamp(0)
+  type         String      @default("other") @db.VarChar(10)
+  device       device      @relation(fields: [device_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_log_device")
+  device_info  device_info @relation(fields: [device_id], references: [device_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_log_device_info")
 }
 
 model log_config {
   id             Int                             @id @default(autoincrement())
-  device_id      Int                             @unique(map: "device_id") @default(0)
+  device_id      Int                             @unique @default(0)
   log_saved_days Int?                            @default(7) @db.TinyInt
   created_at     DateTime                        @default(now()) @db.Timestamp(0)
   updated_at     DateTime                        @default(now()) @db.Timestamp(0)
@@ -45,8 +69,6 @@ model log_config_userfield_relation {
   id             Int            @id @default(autoincrement())
   config_id      Int            @default(0)
   user_field_id  Int            @default(0)
-  created_at     DateTime       @default(now()) @db.Timestamp(0)
-  updated_at     DateTime       @default(now()) @db.Timestamp(0)
   log_config     log_config     @relation(fields: [config_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_log_config_userfield_relation_log_config")
   log_user_field log_user_field @relation(fields: [user_field_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_log_config_userfield_relation_log_user_field")
 
@@ -55,9 +77,9 @@ model log_config_userfield_relation {
 }
 
 model log_user_field {
-  id         Int                             @id @default(autoincrement())
-  name       String                          @db.VarChar(20)
-  created_at DateTime                        @default(now()) @db.Timestamp(0)
-  updated_at DateTime                        @default(now()) @db.Timestamp(0)
-  config_ids log_config_userfield_relation[]
+  id                            Int                             @id @default(autoincrement())
+  name                          String                          @db.VarChar(20)
+  created_at                    DateTime                        @default(now()) @db.Timestamp(0)
+  updated_at                    DateTime                        @default(now()) @db.Timestamp(0)
+  log_config_userfield_relation log_config_userfield_relation[]
 }

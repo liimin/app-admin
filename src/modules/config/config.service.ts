@@ -45,7 +45,7 @@ export class ConfigService {
     return resBody
   }
 
-  async addConfig(config: ConfigTypes.LogConfigAdd):Promise<CommonTypes.IResData<boolean>> {
+  async addConfig(config: ConfigTypes.LogConfigAdd): Promise<CommonTypes.IResData<boolean>> {
     const { user_fields, ...data } = config
     let config_id: number = 0
     await this.prisma.$transaction(async prisma => {
@@ -61,12 +61,10 @@ export class ConfigService {
         const { id } = await prisma.log_config.create({ data, select: { id: true } })
         config_id = id
       }
-      const relations: ConfigTypes.LogConfigResult[] = user_fields.map((ufid: number) => {
+      const relations: RelationsTypes.LogConfigUserFieldsRel[] = user_fields.map((ufid: number) => {
         return {
           config_id,
-          user_field_id: ufid,
-          created_at: date,
-          updated_at: date
+          user_field_id: ufid
         }
       })
       await prisma.log_config_userfield_relation.createMany({ data: relations, skipDuplicates: true })

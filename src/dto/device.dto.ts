@@ -75,14 +75,14 @@ export class AddDeviceInfoDto {
     description: '创建时间',
     default: ''
   })
-  created_at: Date | string
+  created_at: Date
 
   @ApiProperty({
     type: Date,
     description: '更新时间',
     default: ''
   })
-  updated_at: Date | string
+  updated_at: Date 
 
   @IsMobilePhone('zh-CN',{},{ message: '手机号格式不正确'})
   @IsOptional()

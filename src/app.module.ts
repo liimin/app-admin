@@ -6,7 +6,7 @@ import { MailerModule } from '@nest-modules/mailer'
 import { StatusMonitorModule } from 'nest-status-monitor'
 import statusMonitorConfig from './config/statusMonitor'
 import { LoggerMiddleware } from './common/middleware/logger.middleware'
-// import { TasksModule } from './tasks/tasks.module'
+import { TasksModule } from './tasks/tasks.module'
 // import { AudioModule } from './jobs/audio/audio.module'
 // import { AuthModule } from './modules/auth/auth.module'
 // import { HelloModule } from './modules/hello/hello.module'
@@ -37,7 +37,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
     }),
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
-    // TasksModule,
+    TasksModule,
     // AudioModule,
     // AuthModule,
     // HelloModule,

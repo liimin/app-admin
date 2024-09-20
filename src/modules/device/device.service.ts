@@ -3,17 +3,14 @@ import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common'
 // import { InjectRepository } from '@nestjs/typeorm';
 // import { Device as DeviceEntity } from '../entities/Device'
 import { PrismaService } from 'nestjs-prisma'
-import { AddDeviceInfoDto } from '../../dto/device.dto'
-import { WsConnEvents, WsStatus } from '../../common/enums'
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
+import { RESPONSE_CODE, WsConnEvents, WsStatus } from '../../common/enums'
 
 @Injectable()
 export class DeviceService {
   constructor(
     @Inject(PrismaService)
     private readonly prisma: PrismaService // private connection: Connection,
-  ) {
-  }
+  ) {}
 
   async findAll({ user, mobile, sn, skip, take }: DeviceTypes.IQueryDevices): Promise<CommonTypes.IResData<DeviceTypes.IDeviceInfo[]>> {
     const where = {
@@ -39,7 +36,6 @@ export class DeviceService {
         device_info: {
           select: {
             user: true,
-            status: true,
             mobile: true,
             merchant_name: true,
             log_config: {
@@ -55,6 +51,9 @@ export class DeviceService {
                   }
                 }
               }
+            },
+            device_status: {
+              select: { status: true }
             }
           }
         }
@@ -69,7 +68,7 @@ export class DeviceService {
         sn: cur.sn,
         user: cur.device_info?.user,
         mobile: cur.device_info?.mobile,
-        status: cur.device_info?.status,
+        status: cur.device_info?.device_status?.status,
         merchant_name: cur.device_info?.merchant_name,
         log_saved_days: cur.device_info?.log_config?.log_saved_days,
         log_user_fields: cur.device_info?.log_config?.user_fields?.map((item: DeviceTypes.ILogUserFields) => item.log_user_field.name)
@@ -80,25 +79,47 @@ export class DeviceService {
     return resBody
   }
 
-  async addDevice(device: Omit<DeviceTypes.IDevice,'id'|'create_time'>) {
-    return await this.prisma.device.create({ data: device })
+  async addDevice(device: Omit<DeviceTypes.IDevice, 'id' | 'create_time'>): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+    await this.prisma.$transaction(async prisma => {
+      const { id } = await prisma.device.create({ data: device, select: { id: true } })
+      // await this.addDeviceInfo({device_id:id})
+      await prisma.device_info.create({ data: { device_id: id, created_at: new Date(), updated_at: new Date() } })
+      await prisma.device_status.create({ data: { device_id: id, status: WsStatus.Offline } })
+    })
+    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '添加设备成功' } }
   }
 
-  async addDeviceInfo(deviceInfo: AddDeviceInfoDto) {
+  async addDeviceInfo(deviceInfo: DeviceTypes.IDeviceInfoInput): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
     deviceInfo.created_at = new Date()
     deviceInfo.updated_at = new Date()
-    deviceInfo.status = WsStatus.Offline
-    return await this.prisma.device_info.create({ data: deviceInfo })
+    await this.prisma.$transaction(async prisma => {
+      await prisma.device_info.create({ data: deviceInfo })
+      await prisma.device_status.create({ data: { device_id: deviceInfo.device_id, status: WsStatus.Offline } })
+    })
+    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '添加设备信息成功' } }
   }
 
-  async updateDeviceInfo(deviceInfo: AddDeviceInfoDto) {
-    const {device_id,...data} = deviceInfo
+  async updateDeviceInfo(deviceInfo: DeviceTypes.IDeviceInfoInput): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+    const { device_id, ...data } = deviceInfo
     data.updated_at = new Date()
-    return await this.prisma.device_info.update({
+    await this.prisma.device_info.update({
       where: {
         device_id: deviceInfo.device_id
       },
-      data,
+      data
     })
+    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '设备信息更新成功' } }
+  }
+  async upsertDeviceStatus(data: DeviceStatus.IDeviceStatus): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+    await this.prisma.device_status.upsert({
+      where: {
+        device_id: data.device_id
+      },
+      create: data,
+      update: {
+        status: data.status
+      }
+    })
+    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '设备状态更新成功' } }
   }
 }

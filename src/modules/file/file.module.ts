@@ -3,6 +3,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ConfigService } from 'nestjs-config';
 import { FileController } from './file.controller';
 import { FileService } from './file.service';
+import { PrismaService } from 'nestjs-prisma';
 
 @Module({
   imports: [
@@ -12,6 +13,6 @@ import { FileService } from './file.service';
     }),
   ],
   controllers: [FileController],
-  providers: [FileService],
+  providers: [FileService,PrismaService],
 })
 export class FileModule {}

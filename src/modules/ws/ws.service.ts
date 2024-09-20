@@ -5,8 +5,8 @@ import { Logger } from '@nestjs/common'
 // import { validateToken } from '@/utils/helper';
 // import { Message } from '@/entities/message.entity';
 // import { User } from '@/entities/user.entity';
-import { WsAccess, WsConnEvents, WsMessageType, WsStatus } from '../../common/enums'
-import { EventEmitter2 } from '@nestjs/event-emitter'
+import { RESPONSE_CODE, WsAccess, WsConnEvents, WsMessageType, WsStatus } from '../../common/enums'
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
 
 @Injectable()
 export class WsService {
@@ -26,42 +26,59 @@ export class WsService {
    * @returns
    */
   login(client: Socket, token: string, deviceId: number): WsTypes.IWsResponse<WsStatus, WsAccess> {
-    const clients: Map<string, Socket> = this.server.sockets.sockets
-    const clientIsOnline: Socket = clients.get(this.clientIds.get(deviceId))
+    const clientIsOnline: Socket = this.findClientByDeviceId(deviceId)
     // 处理同一工号在多处登录
     clientIsOnline?.emit(WsMessageType.System, `设备 ${deviceId} 已在别处上线, 此客户端下线处理`)
     clientIsOnline?.disconnect()
     // 保存工号
     this.clientIds.set(deviceId, client.id)
-    Logger.log(`${deviceId} connected, onLine: ${clients.size}`)
-    this.server.emit(WsMessageType.System, `${deviceId} connected, onLine: ${clients.size}`)
+    Logger.log(`${deviceId} connected, onLine: ${this.allClients.size}`)
+    this.server.emit(WsMessageType.System, `${deviceId} connected, onLine: ${this.allClients.size}`)
     const resData: WsTypes.IWsResponse<WsStatus, WsAccess> = {
       device_id: deviceId,
       status: WsStatus.Online,
       message: WsAccess.IsOnline
     }
-    this.emit(resData)
+    this.emit(WsConnEvents.OnConnected, resData)
     return resData
+  }
+
+  private findClientByDeviceId(deviceId: number): Socket {
+    return this.allClients?.get(this.clientIds.get(deviceId))
+  }
+
+  private get allClients(): Map<string, Socket> {
+    return this.server?.sockets?.sockets
   }
 
   /**
    * 登出
    * @param client client
    */
-  async logout({ id }: Socket) {
+  async logout({ id }: Socket): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
     // 移除在线 client
     for (let [deviceId, clientId] of this.clientIds) {
       if (clientId === id) {
         this.clientIds.delete(deviceId)
         Logger.log(`${deviceId} disconnected, onLine: ${this.clientIds.size}`)
-        this.emit({ device_id: deviceId, status: WsStatus.Offline, message: WsAccess.IsOffline })
+        this.emit(WsConnEvents.OnConnected, { status: WsStatus.Offline, message: WsAccess.IsOffline, device_id: deviceId })
         break
       }
     }
+    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '登出成功' } }
   }
-  private emit(data: WsTypes.IWsResponse<WsStatus, WsAccess>) {
+  @OnEvent(WsConnEvents.OnConnectError)
+  async onConnError(out: WsTypes.WsConnError): Promise<void> {
+    const { device_id, message } = out
+    const client: Socket = this.findClientByDeviceId(device_id)
+    if (client) {
+      client.emit(WsMessageType.Private, message)
+      client.disconnect()
+    }
+  }
+  private emit(event: WsConnEvents, data: WsTypes.IWsResponse<WsStatus, WsAccess>) {
     const { message, ...rest } = data
-    this.eventEmitter.emit(WsConnEvents.Connection, rest)
+    this.eventEmitter.emit(event, rest)
   }
 
   /**
@@ -76,13 +93,14 @@ export class WsService {
    * @param messagePath 发布地址
    * @param response 响应数据
    */
-  async sendPublicMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>) {
+  async sendPublicMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
     console.log('websocket send', payload)
     const res = this.server?.emit(WsMessageType.System, payload.data)
     if (!res) {
       Logger.log('websocket send error', payload)
       throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: `发送失败`, error: 'send error' }, HttpStatus.BAD_REQUEST)
     }
+    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '发送成功' } }
   }
 
   /**
@@ -91,14 +109,15 @@ export class WsService {
    * @param response 响应数据
    * @param deviceId 接收者设备号
    */
-  async sendPrivateMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>) {
+  async sendPrivateMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
     console.log('websocket send', payload)
     if (!payload.device_id) throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: '请求参数employeeId 必传', error: 'deviceId is required' }, HttpStatus.BAD_REQUEST)
-    const client = this.server.sockets.sockets.get(this.clientIds.get(payload.device_id))
+    const client = this.allClients?.get(this.clientIds.get(payload.device_id))
     const res = client?.emit(WsMessageType.Private, payload.data)
     if (!res) {
       Logger.log('websocket send error', payload)
       throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: `发送失败,客户端:(设备号->${payload.device_id}) 不在线`, error: 'send error' }, HttpStatus.BAD_REQUEST)
     }
+    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '发送成功' } }
   }
 }

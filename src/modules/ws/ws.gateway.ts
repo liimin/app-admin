@@ -91,9 +91,10 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
   }
 
   /**
-   * 用户断开
+   * 用户断开连接
    * @param client client
    */
+
   handleDisconnect(client: Socket) {
     // 移除数据 socketID
     this.wsService.logout(client)
@@ -110,7 +111,11 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
     this.wsService.resetClients()
   }
 
-  public send(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>,WsMessageType>): Promise<any> {
+  /**
+   * 发送消息
+   * @param payload
+   */
+  public send(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>, WsMessageType>): Promise<any> {
     if (payload.event === WsMessageType.Private) {
       return this.wsService.sendPrivateMessage(payload)
     } else {

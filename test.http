@@ -1,20 +1,30 @@
-# http://localhost:3000/device?pageIndex=2&pageSize=5
+# http://localhost:3000/device?pageIndex=1&pageSize=5
 
 #  POST http://localhost:3000/device/add HTTP/1.1
 #  content-type: application/json
 
 #  {
-#      "sn":"sn1111211212122"
+#      "sn":"sn11112112121235"
 #  }
 
 # POST http://localhost:3000/device/addInfo HTTP/1.1
 # content-type: application/json
 
 # {
-#     "device_id":13,
+#     "device_id":16,
+#     "mobile":"13800138000",
+#     "user":"老六",
+#     "merchant_name":"老登"
+# }
+
+# POST http://localhost:3000/device/updateInfo HTTP/1.1
+# content-type: application/json
+
+# {
+#     "device_id":5,
 #     "mobile":"13800138000",
 #     "user":"王老七",
-#     "merchant_name":"老点"
+#     "merchant_name":"老登"
 # }
 
 # http://localhost:3000/sse/event
@@ -26,7 +36,7 @@ POST http://localhost:3000/broadcast/message HTTP/1.1
 
  {
       "event":"private",
-      "device_id":12,
+      "device_id":1,
         "data":{
             "order":"logs",
             "payload":{
@@ -34,6 +44,9 @@ POST http://localhost:3000/broadcast/message HTTP/1.1
             }
         }
  }
+
+
+# http://localhost:3000/file/delete?id=16
 #  http://localhost:3000/config?device_id=2
 
 # POST http://localhost:3000/config/add HTTP/1.1
