@@ -4,7 +4,8 @@ import { TransformInterceptor } from '../../common/interceptors'
 import { WsGateway } from '../ws/ws.gateway'
 import { BroadcastDto } from '../../dto'
 import { ValidationPipe } from '../../common/pipes'
-
+import { ApiTags } from '@nestjs/swagger'
+@ApiTags('broadcast')
 @Controller('broadcast')
 @UseInterceptors(TransformInterceptor)
 @UsePipes(new ValidationPipe()) // 使用管道验证

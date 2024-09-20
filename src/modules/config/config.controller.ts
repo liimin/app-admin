@@ -3,6 +3,8 @@ import { ConfigService } from './config.service'
 import { TransformInterceptor } from '../../common/interceptors'
 import { LogConfigDto } from '../../dto/config.dto'
 import { PagesPipe, ValidationPipe } from '../../common/pipes'
+import { ApiTags } from '@nestjs/swagger'
+@ApiTags('config')
 @Controller('config')
 @UseInterceptors(TransformInterceptor)
 @UsePipes(new ValidationPipe()) // 使用管道验证

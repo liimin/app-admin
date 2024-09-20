@@ -6,7 +6,8 @@ import { FileMimeTypeFilter } from '../../common/filters'
 import { UploadFile } from '../../common/decorators'
 import { DocTypes } from 'src/common/enums'
 import { FileDto } from '../../dto'
-
+import { ApiTags } from '@nestjs/swagger'
+@ApiTags('file')
 @UsePipes(new ValidationPipe())
 @Controller('file')
 export class FileController {

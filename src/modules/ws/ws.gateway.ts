@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io'
 import { WsService } from './ws.service'
 import { Logger, Module, UseInterceptors } from '@nestjs/common'
 import { WsMessageType, WsStatus, WsAccess } from '../../common/enums'
-import { TransformInterceptor } from '../..//common/interceptors'
+import { TransformInterceptor } from '../../common/interceptors'
 
 /**
  * WebSocket 网关
@@ -15,7 +15,7 @@ import { TransformInterceptor } from '../..//common/interceptors'
  * @implements OnGatewayDisconnect
  * @implements OnGatewayInit
  */
-@WebSocketGateway(8080, {
+@WebSocketGateway(+process.env.SOCKET_PORT, {
   origin: '*', // 允许任何来源
   methods: ['GET', 'POST'], // 允许的 HTTP 请求类型
   cors: true // 允许跨域
@@ -105,7 +105,7 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
    * @param server
    */
   afterInit(server: Server) {
-    Logger.log('websocket init... port: ' + process.env.PORT)
+    Logger.log('websocket init... port: ' + process.env.SOCKET_PORT)
     this.wsService.server = server
     // 重置 socketIds
     this.wsService.resetClients()

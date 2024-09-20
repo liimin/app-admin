@@ -31,29 +31,29 @@
 
 
 
-POST http://localhost:3000/broadcast/message HTTP/1.1
- content-type: application/json
+# POST http://localhost:3000/broadcast/message HTTP/1.1
+#  content-type: application/json
 
- {
-      "event":"private",
-      "device_id":1,
-        "data":{
-            "order":"logs",
-            "payload":{
-                "message":"log message"
-            }
-        }
- }
+#  {
+#       "event":"private",
+#       "device_id":1,
+#         "data":{
+#             "order":"logs",
+#             "payload":{
+#                 "message":"log message"
+#             }
+#         }
+#  }
 
 
 # http://localhost:3000/file/delete?id=16
 #  http://localhost:3000/config?device_id=2
 
-# POST http://localhost:3000/config/add HTTP/1.1
-# content-type: application/json
+POST http://localhost:3000/config/add HTTP/1.1
+content-type: application/json
 
-# {
-#     "device_id":1,
-#     "log_saved_days":8,
-#     "user_fields":[1,2,3,4]
-# }
+{
+    "device_id":1,
+    "log_saved_days":8,
+    "user_fields":[1,2,3,4]
+}

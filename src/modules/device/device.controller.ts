@@ -5,7 +5,8 @@ import { AddDeviceDto, AddDeviceInfoDto, DeviceStatusDto } from '../../dto'
 import { PagesPipe, ValidationPipe } from '../../common/pipes'
 import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter'
 import { WsAccess, WsConnEvents } from '../../common/enums'
-
+import { ApiTags } from '@nestjs/swagger'
+@ApiTags('device')
 @Controller('device')
 @UseInterceptors(TransformInterceptor)
 // @UsePipes(new ValidationPipe({transform: true}))

@@ -2,9 +2,9 @@ import { join,extname } from 'path';
 import { diskStorage } from 'multer';
 
 export default {
-  root: join(__dirname, '../uploads'),
+  root: join(__dirname,'..','..',process.env.STATIC_PATH),
   storage: diskStorage({
-    destination: join(__dirname, `../uploads/${new Date().toLocaleDateString()}`),
+    destination: join(__dirname,'..','..', `${process.env.STATIC_PATH}/${new Date().toLocaleDateString()}`),
     filename: (req, file, cb) => {
       const deviceId = req.body.deviceId;
       // const name=file.originalname.split('.');

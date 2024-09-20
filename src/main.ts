@@ -1,15 +1,13 @@
 import { NestFactory } from '@nestjs/core'
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { HttpExceptionFilter, ExceptionsFilter } from './common/filters'
 import { ValidationPipe } from './common/pipes/validation.pipe'
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor'
-import { RedisIoAdapter } from './common/adapters'
 import { AppModule } from './app.module'
-
-import { WsAdapter } from '@nestjs/platform-ws'
-
+import { join } from 'path'
+import { NestExpressApplication } from '@nestjs/platform-express'
+import { docBuilder, wsRedisAdapter } from './initor'
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create<NestExpressApplication>(AppModule)
 
   // 全局使用中间件
   // app.use(logger)
@@ -17,31 +15,18 @@ async function bootstrap() {
   // 全局过滤器
   app.useGlobalFilters(new ExceptionsFilter())
   app.useGlobalFilters(new HttpExceptionFilter())
-  app.enableCors({
-    allowedHeaders: '*',
-    origin: '*',
-    credentials: true,
-  })
-    const redisIoAdapter = new RedisIoAdapter(app);
-    await redisIoAdapter.connectToRedis();
-    app.useWebSocketAdapter(redisIoAdapter);
-    // app.useWebSocketAdapter(new WsAdapter(app))
+  app.enableCors()
+  await wsRedisAdapter(app)
+  // app.useWebSocketAdapter(new WsAdapter(app))
   // app.useGlobalFilters(new ValidateExceptionFilter())
   // 全局管道
   // app.useGlobalPipes(new ValidationPipe());
 
   // 全局拦截器
   // app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useStaticAssets(join(__dirname, '..', process.env.STATIC_PATH))
 
-  // 设置swagger文档相关配置
-  const swaggerOptions = new DocumentBuilder()
-    .setTitle('app-admin api document')
-    .setDescription('nest starter project api document')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build()
-  const document = SwaggerModule.createDocument(app, swaggerOptions)
-  SwaggerModule.setup('doc', app, document)
+  docBuilder(app)
   await app.listen(3000)
 }
 bootstrap()
