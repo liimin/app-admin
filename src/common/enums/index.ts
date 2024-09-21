@@ -59,3 +59,8 @@ export enum DocTypes {
   Video = 'video',
   Other = 'other'
 }
+export enum Command{
+  GetLog='getLog',
+  GetStorage='getStorage',
+  Message='message'
+}

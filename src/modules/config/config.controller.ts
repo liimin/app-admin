@@ -17,7 +17,7 @@ export class ConfigController {
     return this.configService.findAll(params)
   }
   @Post('/add')
-  addConfig(@Body() param: LogConfigDto): Promise<CommonTypes.IResData<boolean>> {
+  addConfig(@Body() param: LogConfigDto): Promise<CommonTypes.IResData> {
     return this.configService.addConfig(param)
   }
 }

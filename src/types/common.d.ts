@@ -51,7 +51,7 @@ declare namespace CommonTypes {
   /**
    * 响应数据接口，继承自分页对象接口，包含业务数据
    */
-  interface IResData<T = any> extends IPagenation {
+  interface IResData<T = any> extends IPagenation,IResponseBase {
     /**
      * 业务数据
      */
@@ -84,13 +84,10 @@ declare namespace CommonTypes {
   /**
    * 定义一个响应体生成函数类型
    *
-   * @param result - 响应数据
-   * @param msg - 消息
-   * @param code - 状态码
-   * @param url - 路径
-   * @returns 返回给前端的响应体
+   * @param data -接口响应的数据
+   * @returns 处理后返回给前端的响应体
    */
-  type TBodyResponse = (result: IResData, message?: string | string[], code?: number, error?: any, url?: string) => IResponse<IResData<any>>
+  type TBodyResponse = (data: IResData) => IResponse<IResData<unknown>>
 
   type Optional<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
   type PartialOne<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>

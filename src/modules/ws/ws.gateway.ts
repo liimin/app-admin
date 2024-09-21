@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators'
 import { Server, Socket } from 'socket.io'
 import { WsService } from './ws.service'
 import { Logger, Module, UseInterceptors } from '@nestjs/common'
-import { WsMessageType, WsStatus, WsAccess } from '../../common/enums'
+import { WsMessageType, WsStatus, WsAccess, Command } from '../../common/enums'
 import { TransformInterceptor } from '../../common/interceptors'
 
 /**
@@ -38,7 +38,7 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
    * @param data - 传入的数据
    * @returns 包含事件和数据的 Observable 对象
    */
-  @SubscribeMessage(WsMessageType.Private)
+  // @SubscribeMessage(WsMessageType.Private)''
   subPrivate(@MessageBody() data: any): Observable<WsResponse<string>> {
     return from<string>('hello').pipe(map(item => ({ event: 'events', data: item })))
   }
@@ -104,7 +104,7 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
    * @param server
    */
   afterInit(server: Server) {
-    Logger.log('websocket init... port: ' + process.env.SOCKET_PORT)
+    Logger.debug('Websocket init... Port: ' + process.env.SOCKET_PORT)
     this.wsService.server = server
     // 重置 socketIds
     this.wsService.resetClients()
@@ -114,11 +114,7 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
    * 发送消息
    * @param payload
    */
-  public send(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>, WsMessageType>): Promise<any> {
-    if (payload.event === WsMessageType.Private) {
-      return this.wsService.sendPrivateMessage(payload)
-    } else {
-      return this.wsService.sendPublicMessage(payload)
-    }
+  public send(payload: WsTypes.MessageBody<WsTypes.WsMessageData<Command>, WsMessageType>): Promise<CommonTypes.IResData> {
+    return this.wsService[{ [WsMessageType.Private]: 'sendPrivateMessage', [WsMessageType.System]: 'sendPublicMessage' }[payload.event]](payload)
   }
 }

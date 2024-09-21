@@ -31,7 +31,7 @@ export class DeviceService implements OnModuleInit {
         }
       }
     }
-    const result: Omit<DeviceTypes.IDeviceResult,'id'>[] = await this.prisma.device.findMany({
+    const result: Omit<DeviceTypes.IDeviceResult, 'id'>[] = await this.prisma.device.findMany({
       skip,
       take,
       select: {
@@ -63,7 +63,7 @@ export class DeviceService implements OnModuleInit {
       },
       where
     })
-    const total:number = await this.prisma.device.count({
+    const total: number = await this.prisma.device.count({
       where
     })
     const data: DeviceTypes.IDeviceInfo[] = result.reduce((pre: DeviceTypes.IDeviceInfo[], cur: DeviceTypes.IDeviceResult) => {
@@ -82,7 +82,7 @@ export class DeviceService implements OnModuleInit {
     return resBody
   }
 
-  async addDevice(device: Omit<DeviceTypes.IDevice, 'id' | 'create_time'>): Promise<CommonTypes.IResponseBase> {
+  async addDevice(device: Omit<DeviceTypes.IDevice, 'id' | 'create_time'>): Promise<CommonTypes.IResData> {
     await this.prisma.$transaction(async prisma => {
       const { id } = await prisma.device.create({ data: device, select: { id: true } })
       // await this.addDeviceInfo({device_id:id})
@@ -92,7 +92,7 @@ export class DeviceService implements OnModuleInit {
     return { code: RESPONSE_CODE.SUCCESS, message: '添加设备成功' }
   }
 
-  async addDeviceInfo(deviceInfo: Omit<DeviceTypes.IDeviceInfoInput,'sn'>): Promise<CommonTypes.IResponseBase> {
+  async addDeviceInfo(deviceInfo: Omit<DeviceTypes.IDeviceInfoInput, 'sn'>): Promise<CommonTypes.IResData> {
     deviceInfo.created_at = new Date()
     deviceInfo.updated_at = new Date()
     await this.prisma.$transaction(async prisma => {
@@ -102,7 +102,7 @@ export class DeviceService implements OnModuleInit {
     return { code: RESPONSE_CODE.SUCCESS, message: '添加设备信息成功' }
   }
 
-  async updateDeviceInfo(deviceInfo: Omit<DeviceTypes.IDeviceInfoInput,'sn'>): Promise<CommonTypes.IResponseBase> {
+  async updateDeviceInfo(deviceInfo: Omit<DeviceTypes.IDeviceInfoInput, 'sn'>): Promise<CommonTypes.IResData> {
     const { device_id, ...data } = deviceInfo
     data.updated_at = new Date()
     await this.prisma.device_info.update({
@@ -113,7 +113,7 @@ export class DeviceService implements OnModuleInit {
     })
     return { code: RESPONSE_CODE.SUCCESS, message: '设备信息更新成功' }
   }
-  async upsertDeviceStatus(data: DeviceStatus.IDeviceStatus): Promise<CommonTypes.IResponseBase> {
+  async upsertDeviceStatus(data: DeviceStatus.IDeviceStatus): Promise<CommonTypes.IResData> {
     await this.prisma.device_status.upsert({
       where: {
         device_id: data.device_id
@@ -125,7 +125,7 @@ export class DeviceService implements OnModuleInit {
     })
     return { code: RESPONSE_CODE.SUCCESS, message: '设备状态更新成功' }
   }
-  async resetAllDeviceStatus(): Promise<CommonTypes.IResponseBase> {
+  async resetAllDeviceStatus(): Promise<CommonTypes.IResData> {
     Logger.debug('===重置所有设备状态===')
     await this.prisma.device_status.updateMany({
       data: {

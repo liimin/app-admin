@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common'
 import { PrismaService } from 'nestjs-prisma'
-import { LogConfigDto } from 'src/dto/config.dto'
+import { RESPONSE_CODE } from '../../common/enums'
 @Injectable()
 export class ConfigService {
   constructor(
@@ -45,7 +45,7 @@ export class ConfigService {
     return resBody
   }
 
-  async addConfig(config: ConfigTypes.LogConfigAdd): Promise<CommonTypes.IResData<boolean>> {
+  async addConfig(config: ConfigTypes.LogConfigAdd): Promise<CommonTypes.IResData> {
     const { user_fields, ...data } = config
     let config_id: number = 0
     await this.prisma.$transaction(async prisma => {
@@ -69,6 +69,6 @@ export class ConfigService {
       })
       await prisma.log_config_userfield_relation.createMany({ data: relations, skipDuplicates: true })
     })
-    return { data: true }
+    return {  code: RESPONSE_CODE.SUCCESS, message: '设备状态更新成功'  }
   }
 }

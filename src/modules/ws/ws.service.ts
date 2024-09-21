@@ -102,7 +102,7 @@ export class WsService {
    * @param messagePath 发布地址
    * @param response 响应数据
    */
-  async sendPublicMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>): Promise<CommonTypes.IResponseBase> {
+  async sendPublicMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>): Promise<CommonTypes.IResData> {
     const res = this.server?.emit(WsMessageType.System, payload.data)
     if (!res) {
       Logger.log('Websocket Send Private Error->', payload)
@@ -118,7 +118,7 @@ export class WsService {
    * @param response 响应数据
    * @param deviceId 接收者设备号
    */
-  async sendPrivateMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>): Promise<CommonTypes.IResponseBase> {
+  async sendPrivateMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>): Promise<CommonTypes.IResData> {
     console.log('websocket send', payload)
     if (!payload.device_id) throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: '请求参数employeeId 必传', error: 'deviceId is required' }, HttpStatus.BAD_REQUEST)
     const client = this.allClients?.get(this.clientIds.get(payload.device_id))

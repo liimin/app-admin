@@ -21,11 +21,13 @@ declare namespace WsTypes {
   }
   type LoginValidate<T> = { isValidate: boolean; errMsg: T }
   type MessageData<T, U = CommonTypes.TObj> = {
-    order: T | string
+    command: T | string
     payload: U
   }
 
   type WsMessageData<T> = MessageData<T>
 
   type WsConnError = CommonTypes.IDeviceId & { message: string }
+
+
 }

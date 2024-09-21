@@ -31,14 +31,14 @@
 
 
 
-POST http://localhost:3000/broadcast/message HTTP/1.1
+POST http://localhost:3000/broadcast/cmd HTTP/1.1
  content-type: application/json
 
  {
       "event":"private",
       "device_id":1,
         "data":{
-            "order":"logs",
+            "command":"getStorage",
             "payload":{
                 "message":"log message"
             }

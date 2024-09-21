@@ -11,8 +11,6 @@ import { ApiTags } from '@nestjs/swagger'
 @UsePipes(new ValidationPipe()) // 使用管道验证
 export class BroadcastController {
   /**
-   * 构造函数，注入BroadcastService和WsGateway
-   * @param broadcastService - BroadcastService实例
    * @param wsGateway - WsGateway实例
    */
   constructor(private readonly wsGateway: WsGateway) {}
@@ -22,8 +20,8 @@ export class BroadcastController {
    * @param params - 包含广播消息的对象
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
-  @Post('/message')
-  async message(@Body() params: BroadcastDto): Promise<any> {
+  @Post('/cmd')
+  async message(@Body() params: BroadcastDto): Promise<CommonTypes.IResData> {
     return this.wsGateway.send(params)
   }
 }

@@ -42,7 +42,7 @@ export class FileController {
    * @returns 返回删除结果
    */
   @Get('delete')
-  async remove(@Query() { id }: FileDto): Promise<CommonTypes.IResponseBase> {
+  async remove(@Query() { id }: FileDto): Promise<CommonTypes.IResData> {
     return await this.fileService.remove(+id)
   }
 

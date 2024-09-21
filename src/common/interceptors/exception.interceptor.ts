@@ -4,7 +4,7 @@ import { catchError } from 'rxjs/operators'
 
 @Injectable()
 export class ErrorsInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<CommonTypes.IResData> {
     return next.handle().pipe(catchError(err => throwError(new HttpException('New message', HttpStatus.BAD_GATEWAY))))
   }
 }

@@ -14,9 +14,9 @@ export class ExceptionsFilter implements ExceptionFilter {
     Logger.error(exception)
     console.log(exception)
     // 获取状态码，判断是HTTP异常还是服务器异常
-    const statusCode = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
-    const msg =  exception.meta?.cause || exception.message || '服务器异常'
+    const code = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
+    const message = exception.meta?.cause || exception.message || '服务器异常'
     // 自定义异常返回体
-    response.status(statusCode).json(BodyResponse(null, msg, statusCode, exception, request.url))
+    response.status(code).json(BodyResponse({ message, code, error: exception, url: request.url }))
   }
 }
