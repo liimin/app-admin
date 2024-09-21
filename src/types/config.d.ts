@@ -10,13 +10,9 @@ model log_config {
   user_fields    log_config_userfield_relation[]
 }*/
 
-declare module ConfigTypes {
-  interface ILogConfig {
-    id: number
-    device_id: number
+declare namespace ConfigTypes {
+  interface ILogConfig extends CommonTypes.IId, CommonTypes.IDeviceId, CommonTypes.ITime {
     log_saved_days: number
-    created_at: Date | string
-    updated_at: Date | string
     user_fields: DeviceTypes.ILogUserFields[]
   }
   type LogConfigQuery = Pick<Partial<ILogConfig>, 'device_id'> & CommonTypes.IQueryBase

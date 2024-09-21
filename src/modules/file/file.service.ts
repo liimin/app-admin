@@ -26,7 +26,7 @@ export class FileService {
    * @param file - 要保存的文件对象，包含文件名、路径、创建时间等信息。
    * @returns 一个 Promise，成功时解析为包含操作结果的 CommonTypes.IResData 对象。
    */
-  async save(file: FileTypes.IFile<DocTypes>): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  async save(file: FileTypes.IFile<DocTypes>): Promise<CommonTypes.IResponseBase> {
     const { filename, path, created_at, ...where } = file
     this.prisma.$transaction(async prisma => {
       const { id, path: origin_path } = (await prisma.file.findFirst({ where, select: { id: true, path: true } })) || {}
@@ -37,7 +37,7 @@ export class FileService {
         return await prisma.file.create({ data: file })
       }
     })
-    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '文件保存成功' } }
+    return { code: RESPONSE_CODE.SUCCESS, message: '文件保存成功' }
   }
 
   /**
@@ -46,16 +46,15 @@ export class FileService {
    * @param id - 要移除的文件的唯一标识符。
    * @returns 一个 Promise，成功时解析为包含操作结果的 CommonTypes.IResData 对象。
    */
-  async remove(id: number): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  async remove(id: number): Promise<CommonTypes.IResponseBase> {
     await this.prisma.$transaction(async prisma => {
       const { path } = (await prisma.file.findFirst({ where: { id }, select: { path: true } })) || {}
       await prisma.file.delete({ where: { id } })
       fs.unlinkSync(path)
     })
-    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '删除成功' } }
+    return { code: RESPONSE_CODE.SUCCESS, message: '删除成功' }
   }
 
-  
   async downloadAll() {
     const uploadDir = this.configService.get('file').root
     const tarStream = new tar.Stream()

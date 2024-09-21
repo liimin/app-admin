@@ -58,7 +58,6 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
    * @param args
    */
   handleConnection(client: Socket, ...args: any[]): WsTypes.IWsResponse<WsStatus, WsAccess> {
-    Logger.log('用户连接上', client.id)
     const auth = client.handshake?.auth ?? client.handshake?.headers
     const ValidateData: WsTypes.LoginValidate<WsAccess> = { isValidate: true, errMsg: WsAccess.IsOnline }
     if (!auth) {

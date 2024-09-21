@@ -43,7 +43,7 @@ export class DeviceController {
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
   @Post('/add')
-  addDevice(@Body() param: AddDeviceDto): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  addDevice(@Body() param: AddDeviceDto): Promise<CommonTypes.IResponseBase> {
     // console.log(param)
     return this.deviceService.addDevice(param)
   }
@@ -54,7 +54,7 @@ export class DeviceController {
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
   @Post('/addInfo')
-  addDeviceInfo(@Body() param: AddDeviceInfoDto): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  addDeviceInfo(@Body() param: AddDeviceInfoDto): Promise<CommonTypes.IResponseBase> {
     // console.log(param)
     return this.deviceService.addDeviceInfo(param)
   }
@@ -65,7 +65,7 @@ export class DeviceController {
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
   @Post('/updateInfo')
-  updateDeviceInfo(@Body() param: AddDeviceInfoDto): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  updateDeviceInfo(@Body() param: AddDeviceInfoDto): Promise<CommonTypes.IResponseBase> {
     return this.deviceService.updateDeviceInfo(param)
   }
 
@@ -77,10 +77,22 @@ export class DeviceController {
    */
   @OnEvent(WsConnEvents.OnConnected)
   @Post('/upsertStatus')
-  async upsertDeviceStatus(@Body() param: DeviceStatusDto): Promise<void | CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  async upsertDeviceStatus(@Body() param: DeviceStatusDto): Promise<void | CommonTypes.IResponseBase> {
     return await this.deviceService.upsertDeviceStatus(param).catch(error => {
       const out: WsTypes.WsConnError = { message: WsAccess.ConnFailure, device_id: param.device_id }
       this.eventEmitter.emit(WsConnEvents.OnConnectError, out)
     })
+  }
+
+  /**
+   * 重置所有设备状态的方法
+   * 该方法接收一个包含设备状态的DTO对象，并返回更新后的设备状态
+   * @param param - 包含设备状态的DTO对象
+   * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
+   */
+  @Post('/offlineAll')
+  @OnEvent(WsConnEvents.OnOfflineAll)
+  async resetAllDeviceStatus(): Promise<void | CommonTypes.IResponseBase> {
+    return await this.deviceService.resetAllDeviceStatus()
   }
 }

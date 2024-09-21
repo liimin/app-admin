@@ -1,6 +1,5 @@
-declare module RelationsTypes {
-  interface IRelation {
-    id: number
+declare namespace RelationsTypes {
+  interface IRelation extends CommonTypes.IId {
     config_id: number
     user_field_id: number
   }

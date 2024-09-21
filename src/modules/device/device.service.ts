@@ -1,4 +1,4 @@
-import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Inject, Injectable, HttpException, HttpStatus, OnModuleInit, Logger } from '@nestjs/common'
 // import { Repository, Connection, getRepository } from 'typeorm';
 // import { InjectRepository } from '@nestjs/typeorm';
 // import { Device as DeviceEntity } from '../entities/Device'
@@ -6,11 +6,14 @@ import { PrismaService } from 'nestjs-prisma'
 import { RESPONSE_CODE, WsConnEvents, WsStatus } from '../../common/enums'
 
 @Injectable()
-export class DeviceService {
+export class DeviceService implements OnModuleInit {
   constructor(
     @Inject(PrismaService)
     private readonly prisma: PrismaService // private connection: Connection,
   ) {}
+  async onModuleInit() {
+    this.resetAllDeviceStatus()
+  }
 
   async findAll({ user, mobile, sn, skip, take }: DeviceTypes.IQueryDevices): Promise<CommonTypes.IResData<DeviceTypes.IDeviceInfo[]>> {
     const where = {
@@ -28,7 +31,7 @@ export class DeviceService {
         }
       }
     }
-    const result: DeviceTypes.IDeviceResult[] = await this.prisma.device.findMany({
+    const result: Omit<DeviceTypes.IDeviceResult,'id'>[] = await this.prisma.device.findMany({
       skip,
       take,
       select: {
@@ -60,7 +63,7 @@ export class DeviceService {
       },
       where
     })
-    const total = await this.prisma.device.count({
+    const total:number = await this.prisma.device.count({
       where
     })
     const data: DeviceTypes.IDeviceInfo[] = result.reduce((pre: DeviceTypes.IDeviceInfo[], cur: DeviceTypes.IDeviceResult) => {
@@ -79,27 +82,27 @@ export class DeviceService {
     return resBody
   }
 
-  async addDevice(device: Omit<DeviceTypes.IDevice, 'id' | 'create_time'>): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  async addDevice(device: Omit<DeviceTypes.IDevice, 'id' | 'create_time'>): Promise<CommonTypes.IResponseBase> {
     await this.prisma.$transaction(async prisma => {
       const { id } = await prisma.device.create({ data: device, select: { id: true } })
       // await this.addDeviceInfo({device_id:id})
       await prisma.device_info.create({ data: { device_id: id, created_at: new Date(), updated_at: new Date() } })
       await prisma.device_status.create({ data: { device_id: id, status: WsStatus.Offline } })
     })
-    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '添加设备成功' } }
+    return { code: RESPONSE_CODE.SUCCESS, message: '添加设备成功' }
   }
 
-  async addDeviceInfo(deviceInfo: DeviceTypes.IDeviceInfoInput): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  async addDeviceInfo(deviceInfo: Omit<DeviceTypes.IDeviceInfoInput,'sn'>): Promise<CommonTypes.IResponseBase> {
     deviceInfo.created_at = new Date()
     deviceInfo.updated_at = new Date()
     await this.prisma.$transaction(async prisma => {
       await prisma.device_info.create({ data: deviceInfo })
       await prisma.device_status.create({ data: { device_id: deviceInfo.device_id, status: WsStatus.Offline } })
     })
-    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '添加设备信息成功' } }
+    return { code: RESPONSE_CODE.SUCCESS, message: '添加设备信息成功' }
   }
 
-  async updateDeviceInfo(deviceInfo: DeviceTypes.IDeviceInfoInput): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  async updateDeviceInfo(deviceInfo: Omit<DeviceTypes.IDeviceInfoInput,'sn'>): Promise<CommonTypes.IResponseBase> {
     const { device_id, ...data } = deviceInfo
     data.updated_at = new Date()
     await this.prisma.device_info.update({
@@ -108,9 +111,9 @@ export class DeviceService {
       },
       data
     })
-    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '设备信息更新成功' } }
+    return { code: RESPONSE_CODE.SUCCESS, message: '设备信息更新成功' }
   }
-  async upsertDeviceStatus(data: DeviceStatus.IDeviceStatus): Promise<CommonTypes.IResData<CommonTypes.IResponseBase>> {
+  async upsertDeviceStatus(data: DeviceStatus.IDeviceStatus): Promise<CommonTypes.IResponseBase> {
     await this.prisma.device_status.upsert({
       where: {
         device_id: data.device_id
@@ -120,6 +123,15 @@ export class DeviceService {
         status: data.status
       }
     })
-    return { data: { code: RESPONSE_CODE.SUCCESS, msg: '设备状态更新成功' } }
+    return { code: RESPONSE_CODE.SUCCESS, message: '设备状态更新成功' }
+  }
+  async resetAllDeviceStatus(): Promise<CommonTypes.IResponseBase> {
+    Logger.debug('===重置所有设备状态===')
+    await this.prisma.device_status.updateMany({
+      data: {
+        status: WsStatus.Offline
+      }
+    })
+    return { code: RESPONSE_CODE.SUCCESS, message: '设备状态更新成功' }
   }
 }

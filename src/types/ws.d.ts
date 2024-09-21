@@ -1,4 +1,4 @@
-declare module WsTypes {
+declare namespace WsTypes {
   abstract class WebSocketGateway<S, T, U> {
     server: S
     abstract subPrivate(data: any): T
@@ -9,16 +9,10 @@ declare module WsTypes {
   type MessageBody<U, T = WsMsgType> = {
     event: T
     data: U
-  } & (T extends 'private' ? IPrivateData : Partial<IPrivateData>)
+  } & (T extends 'private' ? CommonTypes.IDeviceId : Partial<CommonTypes.IDeviceId>)
 
-  interface IPrivateData {
-    /**
-     * 接收设备号
-     */
-    device_id: number
-  }
 
-  interface IWsResponse<T, U> extends IPrivateData {
+  interface IWsResponse<T, U> extends CommonTypes.IDeviceId {
     /**
      * 状态码
      */
@@ -33,5 +27,5 @@ declare module WsTypes {
 
   type WsMessageData<T> = MessageData<T>
 
-  type WsConnError = IPrivateData & { message: string }
+  type WsConnError = CommonTypes.IDeviceId & { message: string }
 }

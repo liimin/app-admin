@@ -8,24 +8,9 @@ declare module DeviceTypes {
    * @param skip - 可选，跳过的记录数量
    * @param take - 可选，获取的记录数量
    */
-  interface IQueryDevices extends CommonTypes.IQueryBase {
-    user?: string
-    mobile?: string
-    sn?: string
-  }
-  interface IDeviceInfoBase {
-    /**
-     * 用户
-     */
-    user?: string
-    /**
-     * 手机号
-     */
-    mobile?: string
-    /**
-     * 商户名称
-     */
-    merchant_name?: string
+  type IQueryDevices = Partial<CommonTypes.IQueryBase & CommonTypes.ISn & IDeviceInfoBase>
+
+  interface IDeviceInfoBase extends CommonTypes.IUser {
     /**
      * 日志保存天数
      */
@@ -34,7 +19,7 @@ declare module DeviceTypes {
   /**
    * 设备信息接口
    */
-  interface IDeviceInfo extends IDeviceInfoBase, IDevice, DeviceStatus.Status {
+  interface IDeviceInfo extends Omit<IDeviceInfoBase,'device_id'>, CommonTypes.PartialOne<IDevice, 'id'>, DeviceStatus.Status {
     /**
      * 日志用户字段
      */
@@ -56,13 +41,9 @@ declare module DeviceTypes {
   log_config           log_config?
 }
  */
-  interface IDeviceInfoInput extends IDeviceInfoBase {
-    id?: number
+  interface IDeviceInfoInput extends IDeviceInfoBase, CommonTypes.IId, CommonTypes.IDeviceId, CommonTypes.ITime {
     last_log_upload_time?: string
     last_log_remove_time?: string
-    device_id: number
-    created_at?: Date
-    updated_at?: Date
   }
 
   type UpdateDeviceInfo = CommonTypes.Optional<IDeviceInfoInput, 'device_id'>
@@ -76,15 +57,8 @@ declare module DeviceTypes {
     device_info: IDeviceInfoRes
   }
 
-  interface IDevice {
-    /**
-     * 设备的唯一标识符
-     */
-    id?: number
-    /**
-     * 设备的序列号
-     */
-    sn: string
+  interface IDevice extends CommonTypes.IId,CommonTypes.ISn {
+ 
     /**
      * 设备创建的时间戳
      */
@@ -94,31 +68,7 @@ declare module DeviceTypes {
   /**
    * 表示设备详细信息的接口
    */
-  interface IDeviceInfoRes extends IDeviceInfoBase {
-    /**
-     * 设备信息的唯一标识符
-     */
-    id?: number
-    /**
-     * 设备的唯一标识符（外键）
-     */
-    device_id?: number
-    /**
-     * 上次日志上传的时间
-     */
-    last_log_upload_time?: string
-    /**
-     * 上次日志移除的时间
-     */
-    last_log_remove_time?: string
-    /**
-     * 设备信息创建的时间戳
-     */
-    created_at?: number
-    /**
-     * 设备信息更新的时间戳
-     */
-    updated_at?: number
+  interface IDeviceInfoRes extends CommonTypes.PartialOne<Omit<IDeviceInfoBase,'device_id'>,'sn'>, CommonTypes.PartialOne<IDeviceInfoInput, 'created_at' | 'updated_at' | 'id' | 'device_id'|'sn'> {
     /**
      * 与设备关联的日志配置信息
      */

@@ -1,12 +1,11 @@
 declare namespace FileTypes {
-  interface IFile<T> {
+  interface IFile<T> extends CommonTypes.IDeviceId, Pick<CommonTypes.ITime,'created_at'> {
+
     originalname: string
     mimetype: string
     filename: string
     path: string
     size: number,
-    device_id: number,
-    created_at: Date,
     type: T
   }
 }

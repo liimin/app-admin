@@ -1,6 +1,5 @@
-declare module UserFieldTypes {
-  interface ILogUserFields {
-    id: number
+declare namespace UserFieldTypes {
+  interface ILogUserFields extends CommonTypes.IId {
     name: string
   }
 }

@@ -8,9 +8,9 @@ export const getCurrentTimestamp = (): number => {
 /**
  * @description: 统一返回体
  */
-export const BodyResponse: CommonTypes.TBodyResponse = (result, msg, code, error, url) => {
-  if (msg instanceof Array) {
-    msg = msg.join(';')
+export const BodyResponse: CommonTypes.TBodyResponse = (result, message, code, error, url) => {
+  if (message instanceof Array) {
+    message = message.join(';')
   }
   const { total, data } = result || {}
   return {
@@ -19,7 +19,7 @@ export const BodyResponse: CommonTypes.TBodyResponse = (result, msg, code, error
     total,
     error,
     timestamp: getCurrentTimestamp(),
-    msg: data?.msg || msg || RESPONSE_MSG.SUCCESS,
+    message: data?.message || message || RESPONSE_MSG.SUCCESS,
     code: data?.code || code || RESPONSE_CODE.SUCCESS
   }
 }
