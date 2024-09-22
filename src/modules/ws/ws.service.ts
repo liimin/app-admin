@@ -119,7 +119,6 @@ export class WsService {
    * @param deviceId 接收者设备号
    */
   async sendPrivateMessage(payload: WsTypes.MessageBody<WsTypes.WsMessageData<string>>): Promise<CommonTypes.IResData> {
-    console.log('websocket send', payload)
     if (!payload.device_id) throw new HttpException({ status: HttpStatus.BAD_REQUEST, message: '请求参数employeeId 必传', error: 'deviceId is required' }, HttpStatus.BAD_REQUEST)
     const client = this.allClients?.get(this.clientIds.get(payload.device_id))
     const res = client?.emit(WsMessageType.Private, payload.data)
@@ -129,5 +128,8 @@ export class WsService {
     }
     Logger.log('发送私有消息成功->', payload)
     return { code: RESPONSE_CODE.SUCCESS, message: '发送成功' }
+  }
+  onMessage(message:any){
+    this.emit(WsConnEvents.OnMessage,message)
   }
 }

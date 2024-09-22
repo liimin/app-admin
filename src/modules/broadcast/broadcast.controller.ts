@@ -1,10 +1,12 @@
-import { Controller, Post, Body, UseInterceptors, UsePipes } from '@nestjs/common'
+import { Controller, Post, Body, UseInterceptors, UsePipes, Logger } from '@nestjs/common'
 import { BroadcastService } from './broadcast.service'
 import { TransformInterceptor } from '../../common/interceptors'
 import { WsGateway } from '../ws/ws.gateway'
 import { BroadcastDto } from '../../dto'
 import { ValidationPipe } from '../../common/pipes'
 import { ApiTags } from '@nestjs/swagger'
+import { OnEvent } from '@nestjs/event-emitter'
+import { WsConnEvents } from '../../common/enums'
 @ApiTags('broadcast')
 @Controller('broadcast')
 @UseInterceptors(TransformInterceptor)
@@ -13,7 +15,9 @@ export class BroadcastController {
   /**
    * @param wsGateway - WsGateway实例
    */
-  constructor(private readonly wsGateway: WsGateway) {}
+  constructor(private readonly wsGateway: WsGateway,
+    private readonly broadcastService: BroadcastService
+  ) {}
 
   /**
    * 发送广播消息
@@ -23,5 +27,10 @@ export class BroadcastController {
   @Post('/cmd')
   async message(@Body() params: BroadcastDto): Promise<CommonTypes.IResData> {
     return this.wsGateway.send(params)
+  }
+  @OnEvent(WsConnEvents.OnMessage)
+  onMessage(@Body() params: any){
+    Logger.debug('收到私有订阅消息：', params)
+    this.broadcastService.onMessage(params)
   }
 }

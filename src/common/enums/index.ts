@@ -48,7 +48,8 @@ export enum WsAccess {
 export enum WsConnEvents {
   OnConnected = 'device.connected',
   OnConnectError = 'device.connect.error',
-  OnOfflineAll='device.offline.all'
+  OnOfflineAll='device.offline.all',
+  OnMessage='client.mesage.received'
 }
 export enum FileUploadEvents {
   OnLogFileUploaded = 'log.file.uploaded'

@@ -13,7 +13,7 @@ export class ConfigController {
 
   @Get()
   @UsePipes(new PagesPipe())
-  async findAll(@Query() params: ConfigTypes.LogConfigQuery): Promise<CommonTypes.IResData<ConfigTypes.LogConfigResponse[]>> {
+  async findAll(@Query() params: LogConfigDto): Promise<CommonTypes.IResData<ConfigTypes.LogConfigResponse[]>> {
     return this.configService.findAll(params)
   }
   @Post('/add')

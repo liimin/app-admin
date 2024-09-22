@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsNotEmpty, IsNumber } from "class-validator"
+import { Transform } from "class-transformer"
+import { IsNotEmpty, IsNumber, isString, Matches } from "class-validator"
 
 /*
 model log_config {
@@ -16,21 +17,27 @@ export class LogConfigDto {
     @ApiProperty({
       type: Number,
       description: '设备信息ID',
+      required: false,
       default: 0
     })
     id: number
     @ApiProperty({
       type: Number,
       description: '设备ID',
+      required: true,
       default: 0
     })
-    @IsNumber({},{ message: '设备ID必须是数字'})
+    @Transform(({ value }) => (isString(value) && !isNaN(Number(value)) ? value : undefined), {
+      toClassOnly: true,
+    })
+    @Matches(/[0-9]+$/, { message: '设备ID必须是数字' })
     @IsNotEmpty({ message: '设备ID不能为空' })
     device_id: number
   
     @ApiProperty({
       type: Number,
       description: '日志保存天数',
+      required: false,
       default: ''
     })
     log_saved_days: number
@@ -39,6 +46,7 @@ export class LogConfigDto {
     @ApiProperty({
       type: Number,
       description: '创建时间',
+      required: false,
       default: ''
     })
     created_at: Date | string
@@ -46,6 +54,7 @@ export class LogConfigDto {
     @ApiProperty({
       type: Date,
       description: '更新时间',
+      required: false,
       default: ''
     })
     updated_at: Date | string
@@ -54,8 +63,8 @@ export class LogConfigDto {
     @ApiProperty({
       type: Array,
       description: '需要上传的用户字段',
+      required: false,
       default: []
     })
     user_fields: []
   }
-  

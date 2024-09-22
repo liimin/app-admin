@@ -31,23 +31,23 @@
 
 
 
-POST http://localhost:3000/broadcast/cmd HTTP/1.1
- content-type: application/json
+# POST http://localhost:3000/broadcast/cmd HTTP/1.1
+#  content-type: application/json
 
- {
-      "event":"private",
-      "device_id":1,
-        "data":{
-            "command":"getStorage",
-            "payload":{
-                "message":"log message"
-            }
-        }
- }
+#  {
+#       "event":"private",
+#       "device_id":1,
+#         "data":{
+#             "command":"getStorage",
+#             "payload":{
+#                 "key":"userInfo"
+#             }
+#         }
+#  }
 
 
 # http://localhost:3000/file/delete?id=16
-#  http://localhost:3000/config?device_id=2
+ http://localhost:3000/config?device_id=2
 
 # POST http://localhost:3000/config/add HTTP/1.1
 # content-type: application/json

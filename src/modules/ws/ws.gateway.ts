@@ -38,9 +38,10 @@ export class WsGateway implements WsTypes.WebSocketGateway<Server, Observable<Ws
    * @param data - 传入的数据
    * @returns 包含事件和数据的 Observable 对象
    */
-  // @SubscribeMessage(WsMessageType.Private)''
+  @SubscribeMessage(WsMessageType.Private)
   subPrivate(@MessageBody() data: any): Observable<WsResponse<string>> {
-    return from<string>('hello').pipe(map(item => ({ event: 'events', data: item })))
+    this.wsService.onMessage(data)
+    return from<string>('ok').pipe(map(item => ({ event: WsMessageType.Private, data: item })))
   }
 
   /**
