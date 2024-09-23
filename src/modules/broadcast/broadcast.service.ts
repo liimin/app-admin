@@ -1,17 +1,34 @@
 import { HttpService } from '@nestjs/axios'
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { AxiosResponse } from 'axios'
-import { Observable } from 'rxjs'
+import { ConfigService } from 'nestjs-config'
+import { Command, Events, FileCommand, RESPONSE_CODE } from '../../common/enums'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 @Injectable()
 export class BroadcastService {
-  constructor(private readonly httpService: HttpService) {}
+  private webHook: string
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly config: ConfigService,
+    @Inject(EventEmitter2)
+    private readonly eventEmitter: EventEmitter2
+  ) {
+    this.webHook = this.config.get('env').AppWebhook
+  }
   // // 广播消息
-  onMessage(param: any) :Observable<AxiosResponse<any, any>>{
-    return this.httpService.post('https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2f2ba84b-1b7f-4556-8508-e6c605e2671c', {
-      msgtype: 'markdown',
-      markdown: {
-        content: param
-      }
-    })
+  async onMessage(param: any): Promise<CommonTypes.IResData> {
+    if (param?.code === RESPONSE_CODE.SUCCESS && param?.data?.command === Command.File && param?.data?.payload?.command === FileCommand.Remove) {
+      this.eventEmitter.emit(Events.OnLogFileRemoved, { device_id: param.device_id, last_log_remove_time: new Date() })
+      return
+    }
+    const res: AxiosResponse<any, any> = await this.httpService
+      .post(this.webHook, {
+        msgtype: 'text',
+        text: {
+          content: JSON.stringify(param)
+        }
+      })
+      .toPromise()
+    return { code: res.status, message: '发送企微消息成功' }
   }
 }

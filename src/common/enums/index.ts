@@ -45,14 +45,14 @@ export enum WsAccess {
   ConnFailure = '设备连接失败,请检查设备号是否正确'
 }
 
-export enum WsConnEvents {
+export enum Events {
   OnConnected = 'device.connected',
   OnConnectError = 'device.connect.error',
   OnOfflineAll='device.offline.all',
-  OnMessage='client.mesage.received'
-}
-export enum FileUploadEvents {
-  OnLogFileUploaded = 'log.file.uploaded'
+  OnMessage='client.mesage.received',
+  OnLogFileUploaded = 'log.file.uploaded',
+  OnLogFileRemoved='log.file.removed',
+  OnTaskStart='task.start'
 }
 export enum DocTypes {
   Log = 'log',
@@ -63,5 +63,11 @@ export enum DocTypes {
 export enum Command{
   GetLog='getLog',
   GetStorage='getStorage',
-  Message='message'
+  Message='message',
+  File='file'
+}
+
+export enum FileCommand{
+  GetList='getList',
+  Remove='remove'
 }

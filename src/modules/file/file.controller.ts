@@ -6,8 +6,8 @@ import { FileMimeTypeFilter } from '../../common/filters'
 import { UploadFile } from '../../common/decorators'
 import { DocTypes } from 'src/common/enums'
 import { FileDto } from '../../dto'
-import { ApiTags } from '@nestjs/swagger'
-@ApiTags('file')
+import { ApiOperation, ApiTags } from '@nestjs/swagger'
+@ApiTags('文件管理')
 @UsePipes(new ValidationPipe())
 @Controller('file')
 export class FileController {
@@ -26,6 +26,7 @@ export class FileController {
    * @returns 返回上传的文件对象
    */
   @Post('upload')
+  @ApiOperation({ summary: '文件上传' })
   @UploadFile('file', { fileFilter: FileMimeTypeFilter('text/plain'), limits: { fileSize: 1024 * 1024 * 100 } })
   upload(@UploadedFile() file: Express.Multer.File, @Req() req: Request): FileTypes.IFile<DocTypes> {
     const { fieldname, encoding, destination, stream, buffer, ...o } = file
@@ -42,6 +43,7 @@ export class FileController {
    * @returns 返回删除结果
    */
   @Get('delete')
+  @ApiOperation({ summary: '根据ID删除文件' })
   async remove(@Query() { id }: FileDto): Promise<CommonTypes.IResData> {
     return await this.fileService.remove(+id)
   }
@@ -52,11 +54,11 @@ export class FileController {
    * @param res - 包含响应信息的Response对象
    * @returns 返回打包后的tar文件
    */
-  @Get('export')
-  async downloadAll(@Res() res: Response) {
-    const { filename, tarStream } = await this.fileService.downloadAll()
-    res.setHeader('Content-Type', 'application/octet-stream')
-    res.setHeader('Content-Disposition', `attachment; filename=${filename}`)
-    tarStream.pipe(res)
-  }
+  // @Get('export')
+  // async downloadAll(@Res() res: Response) {
+  //   const { filename, tarStream } = await this.fileService.downloadAll()
+  //   res.setHeader('Content-Type', 'application/octet-stream')
+  //   res.setHeader('Content-Disposition', `attachment; filename=${filename}`)
+  //   tarStream.pipe(res)
+  // }
 }

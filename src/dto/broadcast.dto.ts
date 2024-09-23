@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
 
 import { Command, WsMessageType } from '../common/enums'
-import { IsDefined, IsEnum, IsNotEmpty, IsNumber, isString, IsString, Matches, ValidateIf, ValidateNested } from 'class-validator'
-import { Transform, Type } from 'class-transformer'
+import { IsDefined, IsEnum, IsNotEmpty, IsNumber, IsString, ValidateIf, ValidateNested } from 'class-validator'
+import { Type } from 'class-transformer'
 
 class DataDto {
   @ApiProperty({
@@ -30,10 +30,6 @@ export class BroadcastDto {
 
   @ValidateIf(o => o.event === WsMessageType.Private)
   @IsDefined({ message: '发送私有消息时,device_id是必填的' })
-  @Transform(({ value }) => (isString(value) && !isNaN(Number(value)) ? value : undefined), {
-    toClassOnly: true,
-  })
-  @Matches(/[0-9]+$/, { message: '设备ID必须是数字' })
   @ApiProperty({
     type: Number,
     description: '设备号,私发信息必填',

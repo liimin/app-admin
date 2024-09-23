@@ -1,5 +1,6 @@
 import { types } from 'util'
 import { RESPONSE_CODE, RESPONSE_MSG } from '../enums'
+import { Logger } from '@nestjs/common'
 
 export const getCurrentTimestamp = (): number => {
   return Date.parse(new Date().toString()) / 1000
@@ -12,5 +13,7 @@ export const BodyResponse: CommonTypes.TBodyResponse = ({ message = RESPONSE_MSG
   if (message instanceof Array) {
     message = message.join(';')
   }
-  return { url, data, total, error, message, code, timestamp: getCurrentTimestamp() }
+  const result = { url, data, total, error, message, code, timestamp: getCurrentTimestamp() }
+  Logger.debug('返回结果：', result)
+  return result
 }

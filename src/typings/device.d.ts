@@ -1,4 +1,4 @@
-declare module DeviceTypes {
+declare namespace DeviceTypes {
   /**
    * 查询设备信息的查询对象接口
    *

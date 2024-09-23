@@ -1,20 +1,14 @@
-import { HttpException, HttpStatus, Injectable, Inject, OnApplicationBootstrap } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable, Inject } from '@nestjs/common'
 import { Server, Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
-// import { WSResponse } from '../message/model/ws-response.model';
-// import { validateToken } from '@/utils/helper';
-// import { Message } from '@/entities/message.entity';
-// import { User } from '@/entities/user.entity';
-import { RESPONSE_CODE, WsAccess, WsConnEvents, WsMessageType, WsStatus } from '../../common/enums'
+import { RESPONSE_CODE, WsAccess, Events, WsMessageType, WsStatus } from '../../common/enums'
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter'
-// import { DeviceService } from '../device/device.service'
 
 @Injectable()
 export class WsService {
   constructor(
     @Inject(EventEmitter2)
     private eventEmitter: EventEmitter2
-    //  private readonly deviceService: DeviceService
   ) {}
   // ws 服务器, gateway 传进来
   server: Server
@@ -46,7 +40,7 @@ export class WsService {
       status: WsStatus.Online,
       message: WsAccess.IsOnline
     }
-    this.emit(WsConnEvents.OnConnected, resData)
+    this.emit(Events.OnConnected, resData)
     return resData
   }
 
@@ -68,13 +62,13 @@ export class WsService {
       if (clientId === id) {
         this.clientIds.delete(deviceId)
         Logger.debug(`Device-> ${deviceId} [${id}] Logout, OnLine Number: ${this.clientIds.size}`)
-        this.emit(WsConnEvents.OnConnected, { status: WsStatus.Offline, message: WsAccess.IsOffline, device_id: deviceId })
+        this.emit(Events.OnConnected, { status: WsStatus.Offline, message: WsAccess.IsOffline, device_id: deviceId })
         break
       }
     }
     return { data: { code: RESPONSE_CODE.SUCCESS, message: '登出成功' } }
   }
-  @OnEvent(WsConnEvents.OnConnectError)
+  @OnEvent(Events.OnConnectError)
   async onConnError(out: WsTypes.WsConnError): Promise<void> {
     const { device_id, message } = out
     const client: Socket = this.findClientByDeviceId(device_id)
@@ -84,7 +78,7 @@ export class WsService {
       client.disconnect()
     }
   }
-  private emit(event: WsConnEvents, data?: WsTypes.IWsResponse<WsStatus, WsAccess>) {
+  private emit(event: Events, data?: WsTypes.IWsResponse<WsStatus, WsAccess>) {
     const { message, ...rest } = data || {}
     return this.eventEmitter.emit(event, rest)
   }
@@ -130,6 +124,6 @@ export class WsService {
     return { code: RESPONSE_CODE.SUCCESS, message: '发送成功' }
   }
   onMessage(message:any){
-    this.emit(WsConnEvents.OnMessage,message)
+    this.emit(Events.OnMessage,message)
   }
 }

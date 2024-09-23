@@ -51,7 +51,7 @@ declare namespace CommonTypes {
   /**
    * 响应数据接口，继承自分页对象接口，包含业务数据
    */
-  interface IResData<T = any> extends IPagenation,IResponseBase {
+  interface IResData<T = any> extends IPagenation, IResponseBase {
     /**
      * 业务数据
      */

@@ -32,10 +32,11 @@ export class FileService {
       const { id, path: origin_path } = (await prisma.file.findFirst({ where, select: { id: true, path: true } })) || {}
       if (id) {
         fs.unlinkSync(origin_path)
-        return await prisma.file.update({ where: { id }, data: { filename, path, created_at } })
+        await prisma.file.update({ where: { id }, data: { filename, path, created_at } })
       } else {
-        return await prisma.file.create({ data: file })
+        await prisma.file.create({ data: file })
       }
+      await prisma.device_info.update({ where: { device_id: file.device_id }, data: { last_log_upload_time: created_at } })
     })
     return { code: RESPONSE_CODE.SUCCESS, message: '文件保存成功' }
   }
@@ -71,4 +72,5 @@ export class FileService {
       rs.pipe(ws)
     })
   }
+  removeFileTask() {}
 }

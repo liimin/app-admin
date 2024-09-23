@@ -27,10 +27,6 @@ export class LogConfigDto {
       required: true,
       default: 0
     })
-    @Transform(({ value }) => (isString(value) && !isNaN(Number(value)) ? value : undefined), {
-      toClassOnly: true,
-    })
-    @Matches(/[0-9]+$/, { message: '设备ID必须是数字' })
     @IsNotEmpty({ message: '设备ID不能为空' })
     device_id: number
   

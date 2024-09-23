@@ -1,12 +1,13 @@
 import { Controller, Get, Post, Body, UseInterceptors, Query, UsePipes, Inject } from '@nestjs/common'
 import { DeviceService } from './device.service'
 import { TransformInterceptor } from '../../common/interceptors'
-import { AddDeviceDto, AddDeviceInfoDto, DeviceStatusDto } from '../../dto'
+import { AddDeviceDto, AddDeviceInfoDto, DeviceQueryDto, DeviceStatusDto } from '../../dto'
 import { PagesPipe, ValidationPipe } from '../../common/pipes'
 import { OnEvent, EventEmitter2 } from '@nestjs/event-emitter'
-import { WsAccess, WsConnEvents } from '../../common/enums'
-import { ApiTags } from '@nestjs/swagger'
-@ApiTags('device')
+import { WsAccess, Events, WsMessageType, Command, RESPONSE_CODE, FileCommand } from '../../common/enums'
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
+
+@ApiTags('设备管理')
 @Controller('device')
 @UseInterceptors(TransformInterceptor)
 // @UsePipes(new ValidationPipe({transform: true}))
@@ -32,7 +33,8 @@ export class DeviceController {
    */
   @Get()
   @UsePipes(new PagesPipe())
-  findAll(@Query() params: DeviceTypes.IQueryDevices): Promise<CommonTypes.IResData> {
+  @ApiOperation({ summary: '获取所有设备列表' })
+  findAll(@Query() params: DeviceQueryDto): Promise<CommonTypes.IResData> {
     return this.deviceService.findAll(params)
   }
 
@@ -43,6 +45,7 @@ export class DeviceController {
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
   @Post('/add')
+  @ApiOperation({ summary: '添加设备' })
   addDevice(@Body() param: AddDeviceDto): Promise<CommonTypes.IResponseBase> {
     // console.log(param)
     return this.deviceService.addDevice(param)
@@ -54,6 +57,7 @@ export class DeviceController {
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
   @Post('/addInfo')
+  @ApiOperation({ summary: '添加设备信息' })
   addDeviceInfo(@Body() param: AddDeviceInfoDto): Promise<CommonTypes.IResponseBase> {
     // console.log(param)
     return this.deviceService.addDeviceInfo(param)
@@ -65,6 +69,8 @@ export class DeviceController {
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
   @Post('/updateInfo')
+  @ApiOperation({ summary: '修改设备信息' })
+  @OnEvent(Events.OnLogFileRemoved)
   updateDeviceInfo(@Body() param: AddDeviceInfoDto): Promise<CommonTypes.IResponseBase> {
     return this.deviceService.updateDeviceInfo(param)
   }
@@ -75,12 +81,13 @@ export class DeviceController {
    * @param param - 包含设备状态的DTO对象
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
-  @OnEvent(WsConnEvents.OnConnected)
+  @OnEvent(Events.OnConnected)
   @Post('/upsertStatus')
+  @ApiOperation({ summary: '更新设备状态' })
   async upsertDeviceStatus(@Body() param: DeviceStatusDto): Promise<void | CommonTypes.IResponseBase> {
     return await this.deviceService.upsertDeviceStatus(param).catch(error => {
       const out: WsTypes.WsConnError = { message: WsAccess.ConnFailure, device_id: param.device_id }
-      this.eventEmitter.emit(WsConnEvents.OnConnectError, out)
+      this.eventEmitter.emit(Events.OnConnectError, out)
     })
   }
 
@@ -91,8 +98,20 @@ export class DeviceController {
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
   @Post('/offlineAll')
-  @OnEvent(WsConnEvents.OnOfflineAll)
+  @ApiOperation({ summary: '修改所有设备状态为离线' })
+  @OnEvent(Events.OnOfflineAll)
   async resetAllDeviceStatus(): Promise<void | CommonTypes.IResponseBase> {
     return await this.deviceService.resetAllDeviceStatus()
+  }
+
+  @Get('/task')
+  @OnEvent(Events.OnTaskStart)
+  async task(): Promise<void | CommonTypes.IResData> {
+    return await this.deviceService.removeFilesTask()
+  }
+  @Get('/addAll')
+  @ApiOperation({ summary: '批量导入设备,用于初始化数据' })
+  async addAll(devices: Array<any>): Promise<void | CommonTypes.IResponseBase> {
+    // return this.deviceService.addAll(devices)
   }
 }

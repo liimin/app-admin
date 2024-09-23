@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common'
 import { ValidationPipe } from '../common/pipes/validation.pipe'
-import { LoggingInterceptor } from '../common/interceptors/logging.interceptor'
+// import { LoggingInterceptor } from '../common/interceptors/logging.interceptor'
 import { ExceptionsFilter, HttpExceptionFilter } from '../common/filters'
 import { docBuilder } from './doc'
 import { wsRedisAdapter } from './ws'
@@ -16,7 +16,7 @@ export default class Initializer {
     // 全局管道
     app.useGlobalPipes(new ValidationPipe())
     // 全局拦截器
-    app.useGlobalInterceptors(new LoggingInterceptor())
+    // app.useGlobalInterceptors(new LoggingInterceptor())
     app.useStaticAssets(join(__dirname, '..', '..', process.env.STATIC_PATH))
     // 初始化文档
     docBuilder(app)

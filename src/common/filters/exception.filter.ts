@@ -12,7 +12,7 @@ export class ExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
     Logger.error(exception)
-    console.log(exception)
+    // console.log(exception)
     // 获取状态码，判断是HTTP异常还是服务器异常
     const code = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
     const message = exception.meta?.cause || exception.message || '服务器异常'

@@ -16,8 +16,6 @@ import { TransformInterceptor } from '../../common/interceptors'
  * @implements OnGatewayInit
  */
 @WebSocketGateway(+process.env.SOCKET_PORT, {
-  origin: '*', // 允许任何来源
-  methods: ['GET', 'POST'], // 允许的 HTTP 请求类型
   cors: true // 允许跨域
 })
 @UseInterceptors(TransformInterceptor)

@@ -71,4 +71,6 @@ export class ConfigService {
     })
     return {  code: RESPONSE_CODE.SUCCESS, message: '设备状态更新成功'  }
   }
+
+ 
 }

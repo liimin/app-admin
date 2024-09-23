@@ -1,10 +1,38 @@
-import { IsString, IsNumber, IsNotEmpty, MaxLength, IsMobilePhone,IsOptional } from 'class-validator'
+import { IsString, IsNumber, IsNotEmpty, MaxLength, IsMobilePhone, IsOptional } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
+import { BaseDto } from './base.dto'
+
+export class DeviceQueryDto extends BaseDto {
+  @ApiProperty({
+    type: String,
+    description: '设备SN',
+    required: false,
+    default: ''
+  })
+  sn?: string
+
+  @ApiProperty({
+    type: String,
+    description: '设备用户',
+    required: false,
+    default: ''
+  })
+  user?: string
+
+  @ApiProperty({
+    type: String,
+    description: '使用者手机号',
+    required: false,
+    default: ''
+  })
+  mobile?: string
+}
 
 export class AddDeviceDto {
   @ApiProperty({
     type: String,
     description: '设备SN',
+    required: true,
     default: ''
   })
   @MaxLength(20, { message: '设备SN不能超过20个字符' })
@@ -38,7 +66,7 @@ export class AddDeviceInfoDto {
     description: '设备ID',
     default: 0
   })
-  @IsNumber({},{ message: '设备ID必须是数字'})
+  @IsNumber({}, { message: '设备ID必须是数字' })
   @IsNotEmpty({ message: '设备ID不能为空' })
   device_id: number
 
@@ -82,9 +110,9 @@ export class AddDeviceInfoDto {
     description: '更新时间',
     default: ''
   })
-  updated_at: Date 
+  updated_at: Date
 
-  @IsMobilePhone('zh-CN',{},{ message: '手机号格式不正确'})
+  @IsMobilePhone('zh-CN', {}, { message: '手机号格式不正确' })
   @IsOptional()
   @ApiProperty({
     type: String,
