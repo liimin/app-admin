@@ -5,6 +5,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { DocTypes, RESPONSE_CODE } from '../../common/enums'
 import { PrismaService } from 'nestjs-prisma'
+import { Doc } from 'prettier'
 
 @Injectable()
 export class FileService {
@@ -21,12 +22,35 @@ export class FileService {
   ) {}
 
   /**
+   * 获取所有文件的方法。
+   *
+   * @returns 一个 Promise，成功时解析为包含所有文件的 CommonTypes.IResData 对象。
+   */
+  async findAll({ device_id, type, filename, skip, take }: FileTypes.FindeFiles<DocTypes>): Promise<CommonTypes.IResData<FileTypes.IFile<DocTypes | string>[]>> {
+    const where = {
+      device_id: device_id ? +device_id : undefined,
+      type,
+      originalname: {
+        contains: filename
+      },
+      filename: {
+        contains: filename
+      }
+    }
+    const files: FileTypes.IFile<DocTypes | string>[] = await this.prisma.file.findMany({ skip, take, where })
+    const total: number = await this.prisma.file.count({
+      where
+    })
+    return { total, data: files }
+  }
+
+  /**
    * 保存文件到数据库的方法。
    *
    * @param file - 要保存的文件对象，包含文件名、路径、创建时间等信息。
    * @returns 一个 Promise，成功时解析为包含操作结果的 CommonTypes.IResData 对象。
    */
-  async save(file: FileTypes.IFile<DocTypes>): Promise<CommonTypes.IResData> {
+  async save(file: FileTypes.FileUpload<DocTypes>): Promise<CommonTypes.IResData> {
     const { filename, path, created_at, ...where } = file
     this.prisma.$transaction(async prisma => {
       const { id, path: origin_path } = (await prisma.file.findFirst({ where, select: { id: true, path: true } })) || {}

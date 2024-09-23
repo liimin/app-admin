@@ -4,9 +4,10 @@ import { FileService } from './file.service'
 import { Response, Request } from 'express'
 import { FileMimeTypeFilter } from '../../common/filters'
 import { UploadFile } from '../../common/decorators'
-import { DocTypes } from 'src/common/enums'
-import { FileDto } from '../../dto'
+import { DocTypes } from '../../common/enums'
+import { FileDeleteDto, FileQueryDto } from '../../dto'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { PagesPipe } from '../../common/pipes'
 @ApiTags('文件管理')
 @UsePipes(new ValidationPipe())
 @Controller('file')
@@ -28,12 +29,25 @@ export class FileController {
   @Post('upload')
   @ApiOperation({ summary: '文件上传' })
   @UploadFile('file', { fileFilter: FileMimeTypeFilter('text/plain'), limits: { fileSize: 1024 * 1024 * 100 } })
-  upload(@UploadedFile() file: Express.Multer.File, @Req() req: Request): FileTypes.IFile<DocTypes> {
+  upload(@UploadedFile() file: Express.Multer.File, @Req() req: Request): FileTypes.FileUpload<DocTypes> {
     const { fieldname, encoding, destination, stream, buffer, ...o } = file
-    const bodyData: Pick<FileTypes.IFile<DocTypes>, 'device_id' | 'type'> = { device_id: Number(req.body.deviceId), type: req.body.type }
-    const fi: FileTypes.IFile<DocTypes> = Object.assign({ created_at: new Date() }, bodyData, o)
-    this.fileService.save(fi)
-    return fi
+    const bodyData: Pick<FileTypes.FileUpload<DocTypes>, 'device_id' | 'type'> = { device_id: Number(req.body.deviceId), type: req.body.type }
+    const f: FileTypes.FileUpload<DocTypes> = Object.assign({ created_at: new Date() }, bodyData, o)
+    this.fileService.save(f)
+    return f
+  }
+
+  /**
+   * 获取所有文件的方法
+   * 该方法接收一个文件类型和一个设备ID和文件名，并返回该设备下所有指定类型的文件
+   * @param params - 包含文件类型和设备ID的对象
+   * @returns 返回该设备下所有指定类型的文件
+   */
+  @Get('list')
+  @ApiOperation({ summary: '获取文件列表' })
+  @UsePipes(new PagesPipe())
+  async findAll(@Query() params: FileQueryDto): Promise<CommonTypes.IResData<FileTypes.IFile<DocTypes | string>[]>> {
+    return await this.fileService.findAll(params)
   }
 
   /**
@@ -44,7 +58,7 @@ export class FileController {
    */
   @Get('delete')
   @ApiOperation({ summary: '根据ID删除文件' })
-  async remove(@Query() { id }: FileDto): Promise<CommonTypes.IResData> {
+  async remove(@Query() { id }: FileDeleteDto): Promise<CommonTypes.IResData> {
     return await this.fileService.remove(+id)
   }
 
