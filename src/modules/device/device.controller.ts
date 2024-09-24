@@ -98,14 +98,15 @@ export class DeviceController {
    * @returns 一个Promise，成功时解析为包含CommonTypes.IResponseBase接口的CommonTypes.IResData对象
    */
   @Post('/offlineAll')
-  @ApiOperation({ summary: '修改所有设备状态为离线' })
   @OnEvent(Events.OnOfflineAll)
+  @ApiOperation({ summary: '修改所有设备状态为离线' })
   async resetAllDeviceStatus(): Promise<void | CommonTypes.IResponseBase> {
     return await this.deviceService.resetAllDeviceStatus()
   }
 
   @Get('/task')
   @OnEvent(Events.OnTaskStart)
+  @ApiOperation({ summary: '日任务' })
   async task(): Promise<void | CommonTypes.IResData> {
     return await this.deviceService.removeFilesTask()
   }

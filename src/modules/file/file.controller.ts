@@ -7,7 +7,7 @@ import { UploadFile } from '../../common/decorators'
 import { DocTypes } from '../../common/enums'
 import { FileDeleteDto, FileQueryDto } from '../../dto'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
-import { PagesPipe } from '../../common/pipes'
+import { FilePathPipe, PagesPipe, ParseDeviceIdPipe, ParseIdPipe } from '../../common/pipes'
 @ApiTags('文件管理')
 @UsePipes(new ValidationPipe())
 @Controller('file')
@@ -27,12 +27,13 @@ export class FileController {
    * @returns 返回上传的文件对象
    */
   @Post('upload')
+  @UsePipes(new FilePathPipe())
   @ApiOperation({ summary: '文件上传' })
   @UploadFile('file', { fileFilter: FileMimeTypeFilter('text/plain'), limits: { fileSize: 1024 * 1024 * 100 } })
   upload(@UploadedFile() file: Express.Multer.File, @Req() req: Request): FileTypes.FileUpload<DocTypes> {
-    const { fieldname, encoding, destination, stream, buffer, ...o } = file
+    const { fieldname, encoding, destination, stream, buffer, path, ...o } = file
     const bodyData: Pick<FileTypes.FileUpload<DocTypes>, 'device_id' | 'type'> = { device_id: Number(req.body.deviceId), type: req.body.type }
-    const f: FileTypes.FileUpload<DocTypes> = Object.assign({ created_at: new Date() }, bodyData, o)
+    const f: FileTypes.FileUpload<DocTypes> = Object.assign({ created_at: new Date(), path: `${req.protocol}://${req.get('Host')}${path}` }, bodyData, o)
     this.fileService.save(f)
     return f
   }
@@ -44,8 +45,9 @@ export class FileController {
    * @returns 返回该设备下所有指定类型的文件
    */
   @Get('list')
-  @ApiOperation({ summary: '获取文件列表' })
   @UsePipes(new PagesPipe())
+  @UsePipes(new ParseDeviceIdPipe())
+  @ApiOperation({ summary: '获取文件列表' })
   async findAll(@Query() params: FileQueryDto): Promise<CommonTypes.IResData<FileTypes.IFile<DocTypes | string>[]>> {
     return await this.fileService.findAll(params)
   }
@@ -57,9 +59,10 @@ export class FileController {
    * @returns 返回删除结果
    */
   @Get('delete')
+  @UsePipes(new ParseIdPipe())
   @ApiOperation({ summary: '根据ID删除文件' })
   async remove(@Query() { id }: FileDeleteDto): Promise<CommonTypes.IResData> {
-    return await this.fileService.remove(+id)
+    return await this.fileService.remove(id as number)
   }
 
   /**

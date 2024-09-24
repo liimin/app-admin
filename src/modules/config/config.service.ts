@@ -9,7 +9,7 @@ export class ConfigService {
   ) {}
   async findAll({ device_id, skip, take }: ConfigTypes.LogConfigQuery): Promise<CommonTypes.IResData<ConfigTypes.LogConfigResponse[]>> {
     const where: any = {
-      device_id: +device_id
+      device_id
     }
     const result: ConfigTypes.LogConfigResult[] = await this.prisma.log_config.findMany({
       skip,

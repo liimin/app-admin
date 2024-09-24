@@ -28,7 +28,7 @@ export class FileService {
    */
   async findAll({ device_id, type, filename, skip, take }: FileTypes.FindeFiles<DocTypes>): Promise<CommonTypes.IResData<FileTypes.IFile<DocTypes | string>[]>> {
     const where = {
-      device_id: device_id ? +device_id : undefined,
+      device_id,
       type,
       originalname: {
         contains: filename

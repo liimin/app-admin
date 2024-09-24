@@ -2,7 +2,7 @@ import { Controller, Post, Body, UseInterceptors, Get, UsePipes, Param, Query } 
 import { ConfigService } from './config.service'
 import { TransformInterceptor } from '../../common/interceptors'
 import { LogConfigDto } from '../../dto/config.dto'
-import { PagesPipe, ValidationPipe } from '../../common/pipes'
+import { PagesPipe, ParseDeviceIdPipe, ValidationPipe } from '../../common/pipes'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 
 @ApiTags('设备配置信息')
@@ -14,6 +14,7 @@ export class ConfigController {
 
   @Get()
   @UsePipes(new PagesPipe())
+  @UsePipes(new ParseDeviceIdPipe())
   @ApiOperation({ summary: '根据设备号获取配置' })
   async findAll(@Query() params: LogConfigDto): Promise<CommonTypes.IResData<ConfigTypes.LogConfigResponse[]>> {
     return this.configService.findAll(params)
